@@ -12,7 +12,6 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.HeaderCell;
-import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
 
@@ -25,33 +24,19 @@ public class WsSettingsActivity extends BaseNekoSettingsActivity {
 
     private int descriptionRow;
     private int settingsRow;
-    private int enableTLSRow;
-    private int localProxyRow;
-    private int enableDoHRow;
+    private int proxyProtocolRow;
 
     @Override
     protected void onItemClick(View view, int position, float x, float y) {
-        if (position == enableTLSRow) {
-            NekoConfig.toggleWsEnableTLS();
-            if (view instanceof TextCheckCell) {
-                ((TextCheckCell) view).setChecked(NekoConfig.wsEnableTLS);
-            }
-            NekoConfig.wsReloadConfig();
-        } else if (position == localProxyRow) {
+        if (position == proxyProtocolRow) {
             ArrayList<String> arrayList = new ArrayList<>();
-            arrayList.add(LocaleController.getString("UseProxySocks5", R.string.UseProxySocks5));
-            arrayList.add(LocaleController.getString("UseProxyTelegram", R.string.UseProxyTelegram));
-            PopupHelper.show(arrayList, LocaleController.getString("WsLocalProxy", R.string.WsLocalProxy), NekoConfig.wsUseMTP ? 1 : 0, getParentActivity(), view, i -> {
-                NekoConfig.setWsUseMTP(i == 1);
-                listAdapter.notifyItemChanged(localProxyRow);
-                NekoConfig.wsReloadConfig();
+            arrayList.add("WireGuard");
+            arrayList.add("WebSocket");
+            PopupHelper.show(arrayList, "Protocol", NekoConfig.wireGuardProxy ? 0 : 1, getParentActivity(), view, i -> {
+                NekoConfig.setWireGuardProxy(i == 0);
+                listAdapter.notifyItemChanged(proxyProtocolRow);
+                NekoConfig.restartProxy();
             });
-        } else if (position == enableDoHRow) {
-            NekoConfig.toggleWsEnableDoH();
-            if (view instanceof TextCheckCell) {
-                ((TextCheckCell) view).setChecked(NekoConfig.wsUseDoH);
-            }
-            NekoConfig.wsReloadConfig();
         }
     }
 
@@ -70,9 +55,7 @@ public class WsSettingsActivity extends BaseNekoSettingsActivity {
         rowCount = 0;
 
         settingsRow = rowCount++;
-        enableTLSRow = rowCount++;
-        localProxyRow = rowCount++;
-        enableDoHRow = rowCount++;
+        proxyProtocolRow = rowCount++;
         descriptionRow = rowCount++;
     }
 
@@ -93,18 +76,9 @@ public class WsSettingsActivity extends BaseNekoSettingsActivity {
                 case 2: {
                     TextSettingsCell textCell = (TextSettingsCell) holder.itemView;
                     textCell.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-                    if (position == localProxyRow) {
-                        String value = NekoConfig.wsUseMTP ? LocaleController.getString("UseProxyTelegram", R.string.UseProxyTelegram) : LocaleController.getString("UseProxySocks5", R.string.UseProxySocks5);
-                        textCell.setTextAndValue(LocaleController.getString("WsLocalProxy", R.string.WsLocalProxy), value, true);
-                    }
-                    break;
-                }
-                case 3: {
-                    TextCheckCell textCell = (TextCheckCell) holder.itemView;
-                    if (position == enableTLSRow) {
-                        textCell.setTextAndCheck(LocaleController.getString("WsEnableTls", R.string.WsEnableTls), NekoConfig.wsEnableTLS, true);
-                    } else if (position == enableDoHRow) {
-                        textCell.setTextAndCheck(LocaleController.getString("WsEnableDoh", R.string.WsEnableDoh), NekoConfig.wsUseDoH, false);
+                    if (position == proxyProtocolRow) {
+                        String value = NekoConfig.wireGuardProxy ? "WireGuard" : "WebSocket";
+                        textCell.setTextAndValue("Protocol", value, false);
                     }
                     break;
                 }
@@ -117,7 +91,7 @@ public class WsSettingsActivity extends BaseNekoSettingsActivity {
                 }
                 case 7: {
                     TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
-                    cell.setText(getSpannedString("WsDescription", R.string.WsDescription, "https://nekogram.app/proxy"));
+                    cell.setText("some description here");
                     cell.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
                     break;
                 }
@@ -130,8 +104,6 @@ public class WsSettingsActivity extends BaseNekoSettingsActivity {
                 return 7;
             } else if (position == settingsRow) {
                 return 4;
-            } else if (position == enableTLSRow || position == enableDoHRow) {
-                return 3;
             }
             return 2;
         }

@@ -37,7 +37,7 @@ dependencies {
     implementation 'io.github.vvb2060.ndk:xposeddetector:2.2'
     implementation 'org.codeberg.qwerty287:prism4j:003cb5e380'
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
-    implementation files('libs/org.tcp2ws.jar')
+    implementation 'app.nekogram.proxy:proxy:2202f69b42'
     implementation files('libs/org.translator.jar')
 
     def appCenterSdkVersion = '4.4.5'

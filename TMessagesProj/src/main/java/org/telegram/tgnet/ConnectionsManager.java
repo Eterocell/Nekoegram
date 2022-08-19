@@ -414,7 +414,7 @@ public class ConnectionsManager extends BaseController {
 
         if (preferences.getBoolean("proxy_enabled", false) && !TextUtils.isEmpty(proxyAddress)) {
             if (NekoConfig.WS_ADDRESS.equals(proxyAddress)) {
-                native_setProxySettings(currentAccount, "127.0.0.1", NekoConfig.getSocksPort(), "", "", NekoConfig.wsUseMTP ? "00000000000000000000000000000000" : "");
+                native_setProxySettings(currentAccount, "127.0.0.1", NekoConfig.getSocksPort(), "", "", "");
             } else {
                 native_setProxySettings(currentAccount, proxyAddress, proxyPort, proxyUsername, proxyPassword, proxySecret);
             }
@@ -514,7 +514,6 @@ public class ConnectionsManager extends BaseController {
         if (address.equals(NekoConfig.WS_ADDRESS)) {
             address = "127.0.0.1";
             port = NekoConfig.getSocksPort();
-            secret = NekoConfig.wsUseMTP ? "00000000000000000000000000000000" : "";
         }
         return native_checkProxy(currentAccount, address, port, username, password, secret, requestTimeDelegate);
     }
@@ -737,7 +736,6 @@ public class ConnectionsManager extends BaseController {
         if (address.equals(NekoConfig.WS_ADDRESS)) {
             address = "127.0.0.1";
             port = NekoConfig.getSocksPort();
-            secret = NekoConfig.wsUseMTP ? "00000000000000000000000000000000" : "";
         }
 
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {

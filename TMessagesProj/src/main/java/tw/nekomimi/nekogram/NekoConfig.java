@@ -1,6 +1,5 @@
 package tw.nekomimi.nekogram;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,7 +8,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import org.tcp2ws.tcp2wsServer;
+import com.wireguard.config.Config;
+
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuildConfig;
@@ -22,14 +22,23 @@ import org.telegram.ui.ActionBar.Theme;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.net.ServerSocket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.github.tehcneko.proxy.Proxy;
+import io.github.tehcneko.proxy.WarpHelper;
+import io.github.tehcneko.proxy.WebSocketProxy;
+import io.github.tehcneko.proxy.WireGuardProxy;
 import tw.nekomimi.nekogram.helpers.remote.AnalyticsHelper;
 import tw.nekomimi.nekogram.helpers.remote.ConfigHelper;
 import tw.nekomimi.nekogram.translator.DeepLTranslator;
@@ -140,13 +149,12 @@ public class NekoConfig {
     public static boolean markdownParseLinks = true;
     public static boolean uploadSpeedBoost = false;
 
-    public static final String WS_ADDRESS = "ws.neko";
+    public static final String WS_ADDRESS = "proxy.neko";
     private static int socksPort = -1;
-    private static boolean tcp2wsStarted = false;
-    private static tcp2wsServer tcp2wsServer;
-    public static boolean wsEnableTLS = true;
-    public static boolean wsUseMTP = false;
-    public static boolean wsUseDoH = true;
+    private static boolean proxyStarted = false;
+    private static Proxy proxyServer;
+    private static Config wireGuardConfig;
+    public static boolean wireGuardProxy = true;
 
     public static final ArrayList<DatacenterInfo> datacenterInfos = new ArrayList<>(5);
 
@@ -191,7 +199,7 @@ public class NekoConfig {
     }
 
     public static int getSocksPort(int port) {
-        if (tcp2wsStarted && socksPort != -1) {
+        if (proxyStarted && socksPort != -1) {
             return socksPort;
         }
         try {
@@ -202,19 +210,14 @@ public class NekoConfig {
                 socksPort = socket.getLocalPort();
                 socket.close();
             }
-            if (!tcp2wsStarted) {
-                // TODO: new domains
-                tcp2wsServer = new tcp2wsServer()
-                        .setTgaMode(false)
-                        .setTls(wsEnableTLS)
-                        .setIfMTP(wsUseMTP)
-                        .setIfDoH(wsUseDoH);
-                tcp2wsServer.start(socksPort);
-                tcp2wsStarted = true;
+            if (!proxyStarted) {
+                startProxy();
+                proxyStarted = true;
                 var map = new HashMap<String, String>();
+                map.put("proxyType", String.valueOf(wireGuardProxy));
                 map.put("buildType", BuildConfig.BUILD_TYPE);
                 map.put("isChineseUser", String.valueOf(isChineseUser));
-                AnalyticsHelper.trackEvent("tcp2ws started", map);
+                AnalyticsHelper.trackEvent("proxy started", map);
             }
             return socksPort;
         } catch (Exception e) {
@@ -231,14 +234,38 @@ public class NekoConfig {
         return getSocksPort(6356);
     }
 
-    public static void wsReloadConfig() {
-        if (tcp2wsServer != null) {
-            try {
-                tcp2wsServer.setTls(wsEnableTLS).setIfMTP(wsUseMTP).setIfDoH(wsUseDoH);
-            } catch (Exception e) {
-                FileLog.e(e);
+    private static void startProxy() {
+        if (!wireGuardProxy || wireGuardConfig != null) {
+            if (wireGuardProxy) {
+                wireGuardConfig.setSocksPort(socksPort);
+                proxyServer = new WireGuardProxy(ApplicationLoader.applicationContext, wireGuardConfig);
+            } else {
+                proxyServer = new WebSocketProxy(socksPort);
             }
+            proxyServer.start();
+        } else {
+            WarpHelper.obtainConfiguration(socksPort, config -> {
+                if (config == null) {
+                    // TODO: error handling
+                    return;
+                }
+                startProxy();
+                try {
+                    var outputStream = new FileOutputStream(ApplicationLoader.applicationContext.getFilesDir() + "/wgcf");
+                    outputStream.write(wireGuardConfig.toWgQuickString().getBytes(Charset.defaultCharset()));
+                    outputStream.close();
+                } catch (Exception ignore) {
+                }
+            });
         }
+    }
+
+    public static void restartProxy() {
+        if (proxyServer != null) {
+            proxyServer.stop();
+            proxyServer = null;
+        }
+        startProxy();
     }
 
     public static boolean isDirectApp() {
@@ -305,9 +332,6 @@ public class NekoConfig {
             accentAsNotificationColor = preferences.getBoolean("accentAsNotificationColor", false);
             silenceNonContacts = preferences.getBoolean("silenceNonContacts", false);
             showNoQuoteForward = preferences.getBoolean("showNoQuoteForward", true);
-            wsEnableTLS = preferences.getBoolean("wsEnableTLS", true);
-            wsUseMTP = preferences.getBoolean("wsUseMTP", false);
-            wsUseDoH = preferences.getBoolean("wsUseDoH", true);
             translationTarget = preferences.getString("translationTarget", "app");
             maxRecentStickers = preferences.getInt("maxRecentStickers", 20);
             disableJumpToNextChannel = preferences.getBoolean("disableJumpToNextChannel", false);
@@ -327,6 +351,13 @@ public class NekoConfig {
             markdownParseLinks = preferences.getBoolean("markdownParseLinks", true);
             downloadSpeedBoost = preferences.getInt("downloadSpeedBoost2", BOOST_NONE);
             uploadSpeedBoost = preferences.getBoolean("uploadSpeedBoost", false);
+            wireGuardProxy = preferences.getBoolean("wireGuardProxy", true);
+            try {
+                var inputStream = new FileInputStream(ApplicationLoader.applicationContext.getFilesDir() + "/wgcf");
+                wireGuardConfig = Config.parse(inputStream);
+                inputStream.close();
+            } catch (Exception ignore) {
+            }
             preferences.registerOnSharedPreferenceChangeListener(listener);
 
             for (int a = 1; a <= 5; a++) {
@@ -381,14 +412,6 @@ public class NekoConfig {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("transType", transType);
-        editor.apply();
-    }
-
-    public static void setWsUseMTP(boolean use) {
-        wsUseMTP = use;
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("wsUseMTP", wsUseMTP);
         editor.apply();
     }
 
@@ -448,19 +471,11 @@ public class NekoConfig {
         editor.apply();
     }
 
-    public static void toggleWsEnableDoH() {
-        wsUseDoH = !wsUseDoH;
+    public static void setWireGuardProxy(boolean wireGuard) {
+        wireGuardProxy = wireGuard;
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("wsUseDoH", wsUseDoH);
-        editor.apply();
-    }
-
-    public static void toggleWsEnableTLS() {
-        wsEnableTLS = !wsEnableTLS;
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("wsEnableTLS", wsEnableTLS);
+        editor.putBoolean("wireGuardProxy", wireGuardProxy);
         editor.apply();
     }
 
