@@ -254,10 +254,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import tw.nekomimi.nekogram.accessibility.AccConfig;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.translator.Translator;
+import com.eterocell.nekoegram.accessibility.AccConfig;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.MessageHelper;
+import com.eterocell.nekoegram.translator.Translator;
 
 @SuppressLint("WrongConstant")
 @SuppressWarnings("unchecked")

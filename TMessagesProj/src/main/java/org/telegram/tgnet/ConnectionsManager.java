@@ -29,8 +29,8 @@ import org.telegram.messenger.StatsController;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 
-import tw.nekomimi.nekogram.ErrorDatabase;
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.ErrorDatabase;
+import com.eterocell.nekoegram.NekoConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

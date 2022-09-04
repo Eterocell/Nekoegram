@@ -138,7 +138,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.NekoConfig;
 
 @SuppressLint("NewApi")
 public class VoIPService extends Service implements SensorEventListener, AudioManager.OnAudioFocusChangeListener, VoIPController.ConnectionStateListener, NotificationCenter.NotificationCenterDelegate {

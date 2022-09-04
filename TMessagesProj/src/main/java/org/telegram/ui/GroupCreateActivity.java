@@ -92,7 +92,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.NekoConfig;
 
 public class GroupCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, View.OnClickListener {
 

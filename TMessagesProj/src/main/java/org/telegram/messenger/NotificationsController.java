@@ -70,8 +70,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.MessageHelper;
 
 public class NotificationsController extends BaseController {
 

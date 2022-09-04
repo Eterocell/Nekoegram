@@ -345,7 +345,7 @@ public class SessionBottomSheet extends BottomSheet {
         } else if (platform.contains("macos")) {
             iconId = R.raw.mac_30;
             colorKey = Theme.key_avatar_backgroundCyan;
-        } else if (session.app_name.contains("Nekogram")) {
+        } else if (session.app_name.contains("Nekoegram")) {
             animation = false;
             iconId = R.drawable.notification;
             colorKey = Theme.key_avatar_backgroundBlue;

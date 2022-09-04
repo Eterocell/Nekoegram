@@ -180,7 +180,6 @@ import org.telegram.ui.Components.SharedMediaLayout;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.ui.Components.StickerEmptyView;
 import org.telegram.ui.Components.TimerDrawable;
-import org.telegram.ui.Components.TranslateAlert;
 import org.telegram.ui.Components.UndoView;
 import org.telegram.ui.Components.voip.VoIPHelper;
 
@@ -204,13 +203,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.DatacenterActivity;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.LanguageDetectorTimeout;
-import tw.nekomimi.nekogram.settings.NekoSettingsActivity;
-import tw.nekomimi.nekogram.translator.popupwrapper.AutoTranslatePopupWrapper;
-import tw.nekomimi.nekogram.translator.Translator;
+import com.eterocell.nekoegram.BackButtonMenuRecent;
+import com.eterocell.nekoegram.DatacenterActivity;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.LanguageDetectorTimeout;
+import com.eterocell.nekoegram.settings.NekoSettingsActivity;
+import com.eterocell.nekoegram.translator.popupwrapper.AutoTranslatePopupWrapper;
+import com.eterocell.nekoegram.translator.Translator;
 
 public class ProfileActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate, SharedMediaLayout.SharedMediaPreloaderDelegate, ImageUpdater.ImageUpdaterDelegate, SharedMediaLayout.Delegate {
 

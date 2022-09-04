@@ -134,9 +134,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.MonetHelper;
-import tw.nekomimi.nekogram.syntaxhighlight.SyntaxHighlight;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.MonetHelper;
+import com.eterocell.nekoegram.syntaxhighlight.SyntaxHighlight;
 
 public class Theme {
 

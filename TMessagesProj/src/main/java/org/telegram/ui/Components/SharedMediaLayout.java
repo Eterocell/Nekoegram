@@ -114,7 +114,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.NekoConfig;
 
 @SuppressWarnings("unchecked")
 public class SharedMediaLayout extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {

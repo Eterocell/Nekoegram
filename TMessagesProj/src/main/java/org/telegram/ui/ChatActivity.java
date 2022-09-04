@@ -269,16 +269,16 @@ import org.telegram.ui.Components.ViewHelper;
 import org.telegram.ui.Components.voip.VoIPHelper;
 import org.telegram.ui.Delegates.ChatActivityMemberRequestsDelegate;
 
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.Extra;
-import tw.nekomimi.nekogram.ForwardContext;
-import tw.nekomimi.nekogram.MessageDetailsActivity;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.DialogConfig;
-import tw.nekomimi.nekogram.helpers.LanguageDetectorTimeout;
-import tw.nekomimi.nekogram.helpers.PermissionHelper;
-import tw.nekomimi.nekogram.translator.Translator;
-import tw.nekomimi.nekogram.translator.popupwrapper.TranslatorSettingsPopupWrapper;
+import com.eterocell.nekoegram.BackButtonMenuRecent;
+import com.eterocell.nekoegram.Extra;
+import com.eterocell.nekoegram.ForwardContext;
+import com.eterocell.nekoegram.MessageDetailsActivity;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.DialogConfig;
+import com.eterocell.nekoegram.helpers.LanguageDetectorTimeout;
+import com.eterocell.nekoegram.helpers.PermissionHelper;
+import com.eterocell.nekoegram.translator.Translator;
+import com.eterocell.nekoegram.translator.popupwrapper.TranslatorSettingsPopupWrapper;
 
 import java.io.BufferedWriter;
 import java.io.File;

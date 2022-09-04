@@ -24,7 +24,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
-import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.Base64;
@@ -71,9 +70,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.syntaxhighlight.SyntaxHighlight;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.MessageHelper;
+import com.eterocell.nekoegram.syntaxhighlight.SyntaxHighlight;
 
 public class MessageObject {
 

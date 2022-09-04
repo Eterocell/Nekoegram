@@ -60,8 +60,8 @@ import org.telegram.ui.ActionBar.Theme;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.folder.FolderIconHelper;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.folder.FolderIconHelper;
 
 public class FilterTabsView extends FrameLayout {
 

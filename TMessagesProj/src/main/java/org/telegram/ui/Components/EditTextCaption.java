@@ -53,7 +53,7 @@ import org.telegram.ui.ActionBar.Theme;
 
 import java.util.List;
 
-import tw.nekomimi.nekogram.syntaxhighlight.SyntaxHighlight;
+import com.eterocell.nekoegram.syntaxhighlight.SyntaxHighlight;
 
 public class EditTextCaption extends EditTextBoldCursor {
 

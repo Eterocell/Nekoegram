@@ -66,7 +66,7 @@ import org.telegram.ui.Components.RecyclerListView;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.helpers.MessageHelper;
+import com.eterocell.nekoegram.helpers.MessageHelper;
 
 public class ContentPreviewViewer {
 

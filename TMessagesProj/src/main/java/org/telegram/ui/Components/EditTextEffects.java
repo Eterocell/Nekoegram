@@ -9,7 +9,6 @@ import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
 import android.view.MotionEvent;
-import android.widget.EditText;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.Components.spoilers.SpoilerEffect;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import tw.nekomimi.nekogram.appcompat.AppCompatEditText;
+import com.eterocell.nekoegram.appcompat.AppCompatEditText;
 
 public class EditTextEffects extends AppCompatEditText {
     private final static int SPOILER_TIMEOUT = 10000;

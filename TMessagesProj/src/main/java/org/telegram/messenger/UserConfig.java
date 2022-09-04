@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
+import com.eterocell.nekoegram.helpers.PasscodeHelper;
 
 public class UserConfig extends BaseController {
 

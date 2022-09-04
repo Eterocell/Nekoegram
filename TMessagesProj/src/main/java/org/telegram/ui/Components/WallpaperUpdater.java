@@ -8,13 +8,10 @@
 
 package org.telegram.ui.Components;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
@@ -31,14 +28,13 @@ import org.telegram.messenger.SendMessagesHelper;
 import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.BottomSheet;
-import org.telegram.ui.BasePermissionsActivity;
 import org.telegram.ui.PhotoAlbumPickerActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.helpers.PermissionHelper;
+import com.eterocell.nekoegram.helpers.PermissionHelper;
 
 public class WallpaperUpdater {
 

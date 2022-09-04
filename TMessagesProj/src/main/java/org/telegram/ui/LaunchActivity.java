@@ -176,14 +176,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.ForwardContext;
-import tw.nekomimi.nekogram.helpers.ApkInstaller;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.helpers.MonetHelper;
-import tw.nekomimi.nekogram.helpers.SettingsHelper;
-import tw.nekomimi.nekogram.helpers.remote.UpdateHelper;
-import tw.nekomimi.nekogram.settings.NekoDonateActivity;
-import tw.nekomimi.nekogram.settings.NekoSettingsActivity;
+import com.eterocell.nekoegram.ForwardContext;
+import com.eterocell.nekoegram.helpers.ApkInstaller;
+import com.eterocell.nekoegram.helpers.MessageHelper;
+import com.eterocell.nekoegram.helpers.MonetHelper;
+import com.eterocell.nekoegram.helpers.SettingsHelper;
+import com.eterocell.nekoegram.helpers.remote.UpdateHelper;
+import com.eterocell.nekoegram.settings.NekoDonateActivity;
+import com.eterocell.nekoegram.settings.NekoSettingsActivity;
 
 public class LaunchActivity extends BasePermissionsActivity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate {
     public static boolean isResumed;
@@ -2329,9 +2329,9 @@ public class LaunchActivity extends BasePermissionsActivity implements ActionBar
                                             NotificationCenter.getInstance(intentAccount[0]).postNotificationName(NotificationCenter.closeChats);
                                             push_user_id = userId;
                                             String mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE));
-                                            if (TextUtils.equals(mimeType, "vnd.android.cursor.item/vnd.tw.nekomimi.nekogram.android.call")) {
+                                            if (TextUtils.equals(mimeType, "vnd.android.cursor.item/vnd.com.eterocell.nekoegram.android.call")) {
                                                 audioCallUser = true;
-                                            } else if (TextUtils.equals(mimeType, "vnd.android.cursor.item/vnd.tw.nekomimi.nekogram.android.call.video")) {
+                                            } else if (TextUtils.equals(mimeType, "vnd.android.cursor.item/vnd.com.eterocell.nekoegram.android.call.video")) {
                                                 videoCallUser = true;
                                             }
                                         }

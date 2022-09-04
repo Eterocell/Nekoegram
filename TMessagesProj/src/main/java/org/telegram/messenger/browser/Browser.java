@@ -38,7 +38,7 @@ import org.telegram.ui.LaunchActivity;
 import java.net.URLEncoder;
 import java.util.List;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.NekoConfig;
 
 public class Browser {
 

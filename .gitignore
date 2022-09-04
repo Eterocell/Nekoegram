@@ -6,4 +6,4 @@ obj/
 local.properties
 .cxx
 .DS_Store
-/TMessagesProj/src/main/java/tw/nekomimi/nekogram/Extra.java
+/TMessagesProj/src/main/java/com/eterocell/nekoegram/Extra.java

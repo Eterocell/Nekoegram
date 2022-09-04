@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.location.NekoLocationSource;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.location.NekoLocationSource;
 
 public class GoogleMapsProvider implements IMapsProvider {
 

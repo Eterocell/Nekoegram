@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.Build;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -39,7 +38,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.NekoConfig;
 
 public class SharedConfig {
     public final static int PASSCODE_TYPE_PIN = 0,

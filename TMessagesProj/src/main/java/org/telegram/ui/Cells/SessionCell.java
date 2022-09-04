@@ -316,7 +316,7 @@ public class SessionCell extends FrameLayout {
         } else if (platform.contains("macos")) {
             iconId = R.drawable.device_desktop_osx;
             colorKey = Theme.key_avatar_backgroundCyan;
-        } else if (session.app_name.contains("Nekogram")) {
+        } else if (session.app_name.contains("Nekoegram")) {
             iconId = R.drawable.notification;
             colorKey = Theme.key_avatar_backgroundBlue;
         } else if (platform.contains("android")) {

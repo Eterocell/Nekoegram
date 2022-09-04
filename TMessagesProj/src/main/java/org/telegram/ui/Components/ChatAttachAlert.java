@@ -110,7 +110,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import tw.nekomimi.nekogram.helpers.PermissionHelper;
+import com.eterocell.nekoegram.helpers.PermissionHelper;
 
 public class ChatAttachAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate, BottomSheet.BottomSheetDelegateInterface {
 

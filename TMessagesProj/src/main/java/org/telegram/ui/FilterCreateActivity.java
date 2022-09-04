@@ -52,8 +52,8 @@ import org.telegram.ui.Components.RecyclerListView;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import tw.nekomimi.nekogram.folder.FolderIconHelper;
-import tw.nekomimi.nekogram.folder.IconSelectorAlert;
+import com.eterocell.nekoegram.folder.FolderIconHelper;
+import com.eterocell.nekoegram.folder.IconSelectorAlert;
 
 public class FilterCreateActivity extends BaseFragment {
 

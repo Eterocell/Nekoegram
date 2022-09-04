@@ -87,9 +87,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.EntitiesHelper;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.EntitiesHelper;
+import com.eterocell.nekoegram.helpers.MessageHelper;
 
 @SuppressWarnings("unchecked")
 public class MediaDataController extends BaseController {

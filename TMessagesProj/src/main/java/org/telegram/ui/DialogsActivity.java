@@ -185,14 +185,14 @@ import org.telegram.ui.Components.ViewPagerFixed;
 import java.io.File;
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.ForwardContext;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.AppLinkVerifyBottomSheet;
-import tw.nekomimi.nekogram.SendOptionsMenuLayout;
-import tw.nekomimi.nekogram.helpers.ApkInstaller;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
-import tw.nekomimi.nekogram.helpers.QrHelper;
+import com.eterocell.nekoegram.BackButtonMenuRecent;
+import com.eterocell.nekoegram.ForwardContext;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.AppLinkVerifyBottomSheet;
+import com.eterocell.nekoegram.SendOptionsMenuLayout;
+import com.eterocell.nekoegram.helpers.ApkInstaller;
+import com.eterocell.nekoegram.helpers.PasscodeHelper;
+import com.eterocell.nekoegram.helpers.QrHelper;
 
 public class DialogsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
     public final static int DIALOGS_TYPE_START_ATTACH_BOT = 14;

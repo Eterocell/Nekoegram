@@ -337,7 +337,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.android.cursor.item/vnd.tw.nekomimi.nekogram.android.profile"/>
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.eterocell.nekoegram.android.profile"/>
             </intent-filter>
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
@@ -372,8 +372,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.android.cursor.item/vnd.tw.nekomimi.nekogram.android.call"/>
-                <data android:mimeType="vnd.android.cursor.item/vnd.tw.nekomimi.nekogram.android.call.video"/>
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.eterocell.nekoegram.android.call"/>
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.eterocell.nekoegram.android.call.video"/>
             </intent-filter>
         </activity-alias>
         <activity
@@ -662,36 +662,17 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="tw.nekomimi.nekogram.helpers.ApkInstaller$UpdateReceiver" android:exported="true">
+        <receiver android:name="com.eterocell.nekoegram.helpers.ApkInstaller$UpdateReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="tw.nekomimi.nekogram.SaveToDownloadReceiver" android:exported="false">
+        <receiver android:name="com.eterocell.nekoegram.SaveToDownloadReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="${applicationId}.CANCEL_SAVE_TO_DOWNLOAD" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name="tw.nekomimi.nekogram.DebugActivity"
-            android:exported="true"
-            android:theme="@style/Theme.TMessages.Transparent">
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="nekogram.app"
-                    android:scheme="http"
-                    android:path="/debug" />
-                <data
-                    android:host="nekogram.app"
-                    android:scheme="https"
-                    android:path="/debug" />
-            </intent-filter>
-        </activity>
 
         <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyCGMAA5lSWvRAgaVtF1-Bh3Di07zePnUbA" />
 

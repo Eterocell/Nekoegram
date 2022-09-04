@@ -28,7 +28,7 @@ import org.xml.sax.XMLReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.syntaxhighlight.SyntaxHighlight;
+import com.eterocell.nekoegram.syntaxhighlight.SyntaxHighlight;
 
 public class CopyUtilities {
 

@@ -12,8 +12,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
-import tw.nekomimi.nekogram.Extra;
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.Extra;
+import com.eterocell.nekoegram.NekoConfig;
 
 public class BuildVars {
 

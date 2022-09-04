@@ -25,7 +25,7 @@ import org.telegram.ui.Components.LayoutHelper;
 
 import java.io.File;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.eterocell.nekoegram.NekoConfig;
 
 @SuppressLint("NewApi")
 public class PhotoAttachCameraCell extends FrameLayout {

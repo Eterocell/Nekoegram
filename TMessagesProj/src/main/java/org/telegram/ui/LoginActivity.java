@@ -157,10 +157,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.EditTextAutoFill;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
-import tw.nekomimi.nekogram.helpers.QrHelper;
+import com.eterocell.nekoegram.BackButtonMenuRecent;
+import com.eterocell.nekoegram.EditTextAutoFill;
+import com.eterocell.nekoegram.helpers.PasscodeHelper;
+import com.eterocell.nekoegram.helpers.QrHelper;
 
 @SuppressLint("HardwareIds")
 public class LoginActivity extends BaseFragment {

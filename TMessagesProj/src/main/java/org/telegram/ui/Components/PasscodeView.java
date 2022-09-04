@@ -61,8 +61,8 @@ import org.telegram.ui.ActionBar.Theme;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.helpers.BiometricPromptHelper;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
+import com.eterocell.nekoegram.helpers.BiometricPromptHelper;
+import com.eterocell.nekoegram.helpers.PasscodeHelper;
 
 public class PasscodeView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {
 

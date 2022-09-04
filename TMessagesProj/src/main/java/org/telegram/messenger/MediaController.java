@@ -8,7 +8,6 @@
 
 package org.telegram.messenger;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -20,7 +19,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -98,10 +96,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
-import tw.nekomimi.nekogram.SaveToDownloadReceiver;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.PermissionHelper;
-import tw.nekomimi.nekogram.helpers.VoiceEnhancementsHelper;
+import com.eterocell.nekoegram.SaveToDownloadReceiver;
+import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.PermissionHelper;
+import com.eterocell.nekoegram.helpers.VoiceEnhancementsHelper;
 
 public class MediaController implements AudioManager.OnAudioFocusChangeListener, NotificationCenter.NotificationCenterDelegate, SensorEventListener {
 
