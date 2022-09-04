@@ -2519,8 +2519,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     linearLayout.setMinimumWidth(AndroidUtilities.dp(200));
                     linearLayout.setOrientation(LinearLayout.VERTICAL);
                     scrimPopupWindowItems = new ActionBarMenuSubItem[4];
-                    boolean hasUnread = getTabCounter(tabView.getId()) != 0;
-                    for (int a = 0, N = (tabView.getId() == filterTabsView.getDefaultTabId() ? 2 : 3) + (hasUnread ? 1 : 0); a < N; a++) {
+                    for (int a = 0, N = (tabView.getId() == filterTabsView.getDefaultTabId() ? 3 : 4); a < N; a++) {
                         ActionBarMenuSubItem cell = new ActionBarMenuSubItem(getParentActivity(), a == 0, a == N - 1);
                         if (a == 0) {
                             if (getMessagesController().dialogFilters.size() <= 1) {
@@ -2528,12 +2527,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                             }
                             cell.setTextAndIcon(LocaleController.getString("FilterReorder", R.string.FilterReorder), R.drawable.tabs_reorder);
                         } else if (a == 1) {
-                            if (N == 2) {
+                            if (N == 3) {
                                 cell.setTextAndIcon(LocaleController.getString("FilterEditAll", R.string.FilterEditAll), R.drawable.msg_edit);
                             } else {
                                 cell.setTextAndIcon(LocaleController.getString("FilterEdit", R.string.FilterEdit), R.drawable.msg_edit);
                             }
-                        } else if (hasUnread && a == 2) {
+                        } else if (a == 2) {
                             cell.setTextAndIcon(LocaleController.getString("MarkAsRead", R.string.MarkAsRead), R.drawable.msg_markread);
                         } else {
                             cell.setTextAndIcon(LocaleController.getString("FilterDeleteItem", R.string.FilterDeleteItem), R.drawable.msg_delete);
@@ -2547,19 +2546,24 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                 filterTabsView.setIsEditing(true);
                                 showDoneItem(true);
                             } else if (i == 1) {
-                                if (N == 2) {
+                                if (N == 3) {
                                     presentFragment(new FiltersSetupActivity());
                                 } else {
                                     presentFragment(new FilterCreateActivity(dialogFilter));
                                 }
-                            } else if (hasUnread && i == 2) {
+                            } else if (i == 2) {
                                 if (dialogFilter == null) {
                                     getMessagesStorage().readAllDialogs(0);
                                 } else {
-                                    if (dialogFilter.dialogs.isEmpty()) getMessagesController().loadTabDialogs(dialogFilter);
-                                    for (var dialog : dialogFilter.dialogs) {
-                                        if (dialog.unread_count == 0 && dialog.unread_mentions_count == 0) continue;
-                                        getMessagesController().markDialogAsRead(dialog.id, dialog.top_message, dialog.top_message, dialog.last_message_date, false, 0, dialog.unread_count, true, 0);
+                                    if (dialogFilter.dialogs.isEmpty()) {
+                                        getMessagesController().loadTabDialogs(dialogFilter);
+                                        for (var dialog : dialogFilter.dialogs) {
+                                            if (dialog.unread_count == 0 && dialog.unread_mentions_count == 0) continue;
+                                            getMessagesController().markDialogAsRead(
+                                                dialog.id, dialog.top_message, dialog.top_message,
+                                                dialog.last_message_date, false, 0, dialog.unread_count, true, 0
+                                            );
+                                        }
                                     }
                                 }
                             } else {
