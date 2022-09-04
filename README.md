@@ -7,7 +7,7 @@ Nekoegram is a third-party Telegram client with not many but useful modification
 
 ## New features compare to original Nekogram
 
-- "Mark all as read" support for folder
+- "Mark as read" cell for all tabs
 
 ## API, Protocol documentation
 
