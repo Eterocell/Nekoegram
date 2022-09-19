@@ -17,7 +17,7 @@ import java.util.Locale;
 
 import javax.crypto.Cipher;
 
-import tw.nekomimi.nekogram.helpers.BiometricPromptHelper;
+import com.eterocell.nekoegram.helpers.BiometricPromptHelper;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class FingerprintController {
