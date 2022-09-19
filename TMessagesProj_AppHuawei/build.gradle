@@ -23,7 +23,7 @@ dependencies {
     implementation files('../TMessagesProj/libs/libgsaverification-client.aar')
 
     implementation 'com.google.firebase:firebase-messaging:23.0.8'
-    implementation 'com.huawei.hms:push:6.5.0.300'
+    implementation 'com.huawei.hms:push:6.7.0.300'
     implementation 'com.huawei.hms:maps:6.6.0.300'
     implementation 'com.huawei.hms:location:6.4.0.300'
 }
