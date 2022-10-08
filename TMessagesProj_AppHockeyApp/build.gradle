@@ -20,7 +20,7 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation files('../TMessagesProj/libs/libgsaverification-client.aar')
 
-    implementation "com.microsoft.appcenter:appcenter-distribute:3.3.1"
+    implementation "com.microsoft.appcenter:appcenter-distribute:4.4.5"
     implementation "com.microsoft.appcenter:appcenter-crashes:3.3.1"
 }
 
