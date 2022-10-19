@@ -36,10 +36,10 @@ http_archive(
 # C++ rules for Bazel.
 http_archive(
     name = "rules_cc",
-    sha256 = "9a446e9dd9c1bb180c86977a8dc1e9e659550ae732ae58bd2e8fd51e15b2c91d",
-    strip_prefix = "rules_cc-262ebec3c2296296526740db4aefce68c80de7fa",
+    sha256 = "f524d57354ae4b67c24d14fa83905619d140ef40d13edaefac2dce7703896208",
+    strip_prefix = "rules_cc-dc039dc2d82696ab3f0087b6dfe79776d1ab2326",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_cc/archive/262ebec3c2296296526740db4aefce68c80de7fa.zip",
-        "https://github.com/bazelbuild/rules_cc/archive/262ebec3c2296296526740db4aefce68c80de7fa.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_cc/archive/dc039dc2d82696ab3f0087b6dfe79776d1ab2326.zip",
+        "https://github.com/bazelbuild/rules_cc/archive/dc039dc2d82696ab3f0087b6dfe79776d1ab2326.zip",
     ],
 )
