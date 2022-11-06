@@ -5,6 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -14,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +30,7 @@ import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaController;
 import org.telegram.messenger.MessageObject;
+import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.TLRPC;
@@ -47,8 +53,10 @@ import org.telegram.ui.Cells.SharedDocumentCell;
 import org.telegram.ui.Cells.SharedLinkCell;
 import org.telegram.ui.Cells.SharedPhotoVideoCell;
 import org.telegram.ui.ChatActivity;
+import org.telegram.ui.Components.Premium.PremiumFeatureBottomSheet;
 import org.telegram.ui.DialogsActivity;
 import org.telegram.ui.FilteredSearchView;
+import org.telegram.ui.PremiumPreviewFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,12 +89,18 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
     public final static int forwardNoQuoteItemId = 202;
     public final static int saveItemId = 203;
     public final static int deleteItemId = 204;
+    public final static int speedItemId = 205;
 
+    private ActionBarMenuItem speedItem;
     private ActionBarMenuItem gotoItem;
     private ActionBarMenuItem forwardItem;
     private ActionBarMenuItem forwardNoQuoteItem;
     private ActionBarMenuItem saveItem;
     private ActionBarMenuItem deleteItem;
+
+    private ActionBarMenu actionMode;
+
+    private SearchDownloadsContainer downloadsContainer;
 
     int currentAccount = UserConfig.selectedAccount;
 
@@ -170,7 +184,7 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
         searchListView.setInstantClick(true);
         searchListView.setVerticalScrollbarPosition(LocaleController.isRTL ? RecyclerListView.SCROLLBAR_POSITION_LEFT : RecyclerListView.SCROLLBAR_POSITION_RIGHT);
         searchListView.setLayoutManager(searchLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        searchListView.setAnimateEmptyView(true, 0);
+        searchListView.setAnimateEmptyView(true, RecyclerListView.EMPTY_VIEW_ANIMATION_TYPE_ALPHA);
         searchListView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -231,6 +245,14 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
         itemsEnterAnimator = new RecyclerItemsEnterAnimator(searchListView, true);
 
         setAdapter(viewPagerAdapter = new ViewPagerAdapter());
+    }
+
+    public ActionBarMenu getActionMode() {
+        return actionMode;
+    }
+
+    public ActionBarMenuItem getSpeedItem() {
+        return speedItem;
     }
 
     public void onTextChanged(String text) {
@@ -325,6 +347,11 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
         }
     }
 
+    @Nullable
+    public SearchDownloadsContainer getDownloadsContainer() {
+        return downloadsContainer;
+    }
+
     public void onResume() {
         if (dialogsSearchAdapter != null) {
             dialogsSearchAdapter.notifyDataSetChanged();
@@ -355,7 +382,7 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
             return;
         }
         if (show && !parent.getActionBar().actionModeIsExist(actionModeTag)) {
-            ActionBarMenu actionMode = parent.getActionBar().createActionMode(true, actionModeTag);
+            actionMode = parent.getActionBar().createActionMode(true, actionModeTag);
 
             selectedMessagesCountTextView = new NumberTextView(actionMode.getContext());
             selectedMessagesCountTextView.setTextSize(18);
@@ -364,6 +391,8 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
             actionMode.addView(selectedMessagesCountTextView, LayoutHelper.createLinear(0, LayoutHelper.MATCH_PARENT, 1.0f, 72, 0, 0, 0));
             selectedMessagesCountTextView.setOnTouchListener((v, event) -> true);
 
+            speedItem = actionMode.addItemWithWidth(speedItemId, R.drawable.avd_speed, AndroidUtilities.dp(54), LocaleController.getString("AccDescrPremiumSpeed", R.string.AccDescrPremiumSpeed));
+            speedItem.getIconView().setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarActionModeDefaultIcon), PorterDuff.Mode.SRC_IN));
             gotoItem = actionMode.addItemWithWidth(gotoItemId, R.drawable.msg_message, AndroidUtilities.dp(54), LocaleController.getString("AccDescrGoToMessage", R.string.AccDescrGoToMessage));
             forwardNoQuoteItem = actionMode.addItemWithWidth(forwardNoQuoteItemId, R.drawable.msg_forward, AndroidUtilities.dp(54), LocaleController.getString("NoQuoteForward", R.string.NoQuoteForward));
             forwardItem = actionMode.addItemWithWidth(forwardItemId, NekoConfig.showNoQuoteForward ? R.drawable.msg_forward_quote : R.drawable.msg_forward, AndroidUtilities.dp(54), LocaleController.getString("Forward", R.string.Forward));
@@ -371,13 +400,16 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
             deleteItem = actionMode.addItemWithWidth(deleteItemId, R.drawable.msg_delete, AndroidUtilities.dp(54), LocaleController.getString("Delete", R.string.Delete));
         }
         if (parent.getActionBar().getBackButton().getDrawable() instanceof MenuDrawable) {
-            parent.getActionBar().setBackButtonDrawable(new BackDrawable(false));
+            BackDrawable backDrawable = new BackDrawable(false);
+            parent.getActionBar().setBackButtonDrawable(backDrawable);
+            backDrawable.setColorFilter(null);
         }
         isActionModeShowed = show;
         if (show) {
             AndroidUtilities.hideKeyboard(parent.getParentActivity().getCurrentFocus());
             parent.getActionBar().showActionMode();
             selectedMessagesCountTextView.setNumber(selectedFiles.size(), false);
+            speedItem.setVisibility(isSpeedItemVisible() ? View.VISIBLE : View.GONE);
             gotoItem.setVisibility(View.VISIBLE);
             forwardItem.setVisibility(View.VISIBLE);
             if (NekoConfig.showNoQuoteForward) {
@@ -412,6 +444,18 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
         }
     }
 
+    private boolean isSpeedItemVisible() {
+        if (UserConfig.getInstance(currentAccount).isPremium() || MessagesController.getInstance(currentAccount).premiumLocked) {
+            return false;
+        }
+        for (MessageObject obj : selectedFiles.values()) {
+            if (obj.getDocument() != null && obj.getDocument().size >= 500 * 1024 * 1024) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void onActionBarItemClick(int id) {
         if (id == deleteItemId) {
             if (parent == null || parent.getParentActivity() == null) {
@@ -440,6 +484,12 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
                 button.setTextColor(Theme.getColor(Theme.key_dialogTextRed2));
             }
 
+        } else if (id == speedItemId) {
+            if (!isSpeedItemVisible()) {
+                return;
+            }
+
+            parent.showDialog(new PremiumFeatureBottomSheet(parent, PremiumPreviewFragment.PREMIUM_FEATURE_DOWNLOAD_SPEED, true));
         } else if (id == gotoItemId) {
             if (selectedFiles.size() != 1) {
                 return;
@@ -471,9 +521,9 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
 
                 showActionMode(false);
 
-                if (dids.size() > 1 || dids.get(0) == AccountInstance.getInstance(currentAccount).getUserConfig().getClientUserId() || message != null) {
+                if (dids.size() > 1 || dids.get(0).dialogId == AccountInstance.getInstance(currentAccount).getUserConfig().getClientUserId() || message != null) {
                     for (int a = 0; a < dids.size(); a++) {
-                        long did = dids.get(a);
+                        long did = dids.get(a).dialogId;
                         if (message != null) {
                             AccountInstance.getInstance(currentAccount).getSendMessagesHelper().sendMessage(message.toString(), did, null, null, null, true, null, null, null, forwardParams.notify, forwardParams.scheduleDate, null, false);
                         }
@@ -481,7 +531,7 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
                     }
                     fragment1.finishFragment();
                 } else {
-                    long did = dids.get(0);
+                    long did = dids.get(0).dialogId;
                     Bundle args1 = new Bundle();
                     args1.putBoolean("forward_noquote", forwardParams.noQuote);
                     args1.putBoolean("forward_nocaption", forwardParams.noCaption);
@@ -557,6 +607,27 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
             selectedMessagesCountTextView.setNumber(selectedFiles.size(), true);
             if (gotoItem != null) {
                 gotoItem.setVisibility(selectedFiles.size() == 1 ? View.VISIBLE : View.GONE);
+            }
+            if (speedItem != null) {
+                boolean visible = isSpeedItemVisible();
+                int v = visible ? View.VISIBLE : View.GONE;
+                if (speedItem.getVisibility() != v) {
+                    speedItem.setVisibility(v);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) speedItem.getIconView().getDrawable();
+                        drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarActionModeDefaultIcon), PorterDuff.Mode.SRC_IN));
+                        if (visible) {
+                            drawable.start();
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                drawable.reset();
+                            } else {
+                                drawable.setVisible(false, true);
+                            }
+                        }
+                    }
+                }
             }
             boolean canShowDelete = true;
             boolean canShowSave = true;
@@ -656,6 +727,11 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
 
         arrayList.add(new ThemeDescription(emptyView.title, ThemeDescription.FLAG_TEXTCOLOR, null, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
         arrayList.add(new ThemeDescription(emptyView.subtitle, ThemeDescription.FLAG_TEXTCOLOR, null, null, null, null, Theme.key_windowBackgroundWhiteGrayText));
+        arrayList.addAll(SimpleThemeDescription.createThemeDescriptions(()-> {
+            if (selectedMessagesCountTextView != null) {
+                selectedMessagesCountTextView.setTextColor(Theme.getColor(Theme.key_actionBarActionModeDefaultIcon));
+            }
+        }, Theme.key_actionBarActionModeDefaultIcon));
     }
 
     public void updateColors() {
@@ -879,7 +955,7 @@ public class SearchViewPager extends ViewPagerFixed implements FilteredSearchVie
             if (viewType == 1) {
                 return searchContainer;
             } else if (viewType == 2) {
-                SearchDownloadsContainer downloadsContainer = new SearchDownloadsContainer(parent, currentAccount);
+                downloadsContainer = new SearchDownloadsContainer(parent, currentAccount);
                 downloadsContainer.recyclerListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                     @Override
                     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {

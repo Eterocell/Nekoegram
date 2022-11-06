@@ -1053,7 +1053,9 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
                     }
                     cameraSession.setInitied();
                     if (updateScale) {
-                        cameraThread.reinitForNewCamera();
+                        if (cameraThread != null) {
+                            cameraThread.reinitForNewCamera();
+                        }
                     }
                 }
             }, () -> cameraThread.setCurrentSession(cameraSession));

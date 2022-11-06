@@ -20,12 +20,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ContactsController;
 import org.telegram.messenger.LanguageDetector;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
+import org.telegram.messenger.UserObject;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.AlertDialog;
@@ -144,7 +146,7 @@ public class MessageDetailsActivity extends BaseNekoSettingsActivity implements 
             }
         }
 
-        if (messageObject.messageOwner.entities != null) {
+        if (NekoConfig.showHiddenFeature && messageObject.messageOwner.entities != null) {
             for (var entity : messageObject.messageOwner.entities) {
                 if (entity instanceof TLRPC.TL_messageEntityCustomEmoji) {
                     TLRPC.Document document = AnimatedEmojiDrawable.findDocument(currentAccount, ((TLRPC.TL_messageEntityCustomEmoji) entity).document_id);
@@ -584,7 +586,7 @@ public class MessageDetailsActivity extends BaseNekoSettingsActivity implements 
             builder.append("\n");
             if (!TextUtils.isEmpty(user.username)) {
                 builder.append("@");
-                builder.append(user.username);
+                builder.append(UserObject.getPublicUsername(user));
                 builder.append("\n");
             }
             builder.append(user.id);
@@ -594,7 +596,7 @@ public class MessageDetailsActivity extends BaseNekoSettingsActivity implements 
             builder.append("\n");
             if (!TextUtils.isEmpty(chat.username)) {
                 builder.append("@");
-                builder.append(chat.username);
+                builder.append(ChatObject.getPublicUsername(chat));
                 builder.append("\n");
             }
             builder.append(chat.id);
@@ -622,7 +624,7 @@ public class MessageDetailsActivity extends BaseNekoSettingsActivity implements 
             textView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
             addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, 21, 10, 21, 0));
 
-            valueTextView = new TextViewEffects(context);
+            valueTextView = new TextViewEffects(context, resourcesProvider);
             valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider));
             valueTextView.setTextSize(13);
             valueTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
