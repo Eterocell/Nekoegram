@@ -58,7 +58,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.CharacterStyle;
@@ -2546,10 +2545,10 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             if (searchItem == null) {
                 return false;
             }
-            if (threadMessageId == 0 && !UserObject.isReplyUser(currentUser)) {
+            if ((threadMessageId == 0 || isTopic) && !UserObject.isReplyUser(currentUser)) {
                 openSearchWithText(null);
             } else {
-                searchItem.openSearch(openSearchKeyboard);
+                searchItem.openSearch(true);
             }
             return true;
         });
@@ -2728,7 +2727,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
                 @Override
                 public void onSearchExpand() {
-                    if (threadMessageId != 0 || UserObject.isReplyUser(currentUser)) {
+                    if (threadMessageId != 0 && !isTopic || UserObject.isReplyUser(currentUser)) {
                         openSearchWithText(null);
                     }
                     if (!openSearchKeyboard) {
@@ -15530,6 +15529,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     needAnimateToMessage = null;
                 }
 
+                MessageObject oldMessage = messagesDict[loadIndex].get(messageId);
                 messagesDict[loadIndex].put(messageId, obj);
                 ArrayList<MessageObject> dayArray = messagesByDays.get(obj.dateKey);
 
@@ -15617,7 +15617,11 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
                 newRowsCount++;
                 dayArray.add(obj);
-                obj.stableId = lastStableId++;
+                if (oldMessage != null) {
+                    obj.stableId =  oldMessage.stableId;
+                } else {
+                    obj.stableId = lastStableId++;
+                }
                 if (load_type == 1) {
                     messages.add(0, obj);
                 } else {
@@ -16869,11 +16873,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     MediaController.getInstance().setTextureView(createTextureView(true), aspectRatioFrameLayout, videoPlayerContainer, true);
                     updateTextureViewPosition(true, true);
                 } else {
-                    MediaController.getInstance().setTextureView(createTextureView(true), aspectRatioFrameLayout, videoPlayerContainer, true, () -> {
-                        checkTextureViewPosition = true;
-                        updateMessagesVisiblePart(false);
-                        updateTextureViewPosition(true, false);
-                    });
+                    MediaController.getInstance().setTextureView(createTextureView(true), aspectRatioFrameLayout, videoPlayerContainer, true);
                 }
             }
 
@@ -22881,7 +22881,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                                 icons.add(R.drawable.msg_prpr);
                             }
                             if (NekoConfig.showViewHistory) {
-                                boolean allowViewHistory = currentChat != null && !isThreadChat() && chatMode != MODE_PINNED && !currentChat.broadcast;
+                                boolean allowViewHistory = currentChat != null && chatMode == 0 && !currentChat.broadcast && !(threadMessageObjects != null && threadMessageObjects.contains(message));
                                 if (allowViewHistory) {
                                     items.add(LocaleController.getString("ViewUserHistory", R.string.ViewHistory));
                                     options.add(OPTION_VIEW_HISTORY);
@@ -25059,7 +25059,11 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 break;
             } case OPTION_VIEW_HISTORY: {
                 TLRPC.Peer peer = selectedObject.messageOwner.from_id;
-                openSearchWithText("");
+                if ((threadMessageId == 0 || isTopic) && !UserObject.isReplyUser(currentUser)) {
+                    openSearchWithText("");
+                } else {
+                    searchItem.openSearch(false);
+                }
                 if (peer.user_id != 0) {
                     TLRPC.User user = getMessagesController().getUser(peer.user_id);
                     searchUserMessages(user, null);
@@ -27021,9 +27025,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                         if (messageObject.isVoice() || messageObject.isRoundVideo()) {
                             boolean result = MediaController.getInstance().playMessage(messageObject, muted);
                             if (!NekoConfig.disableVoiceMessageAutoPlay) MediaController.getInstance().setVoiceMessagesPlaylist(result ? createVoiceMessagesPlaylist(messageObject, false) : null, false);
-//                            if (messageObject.isRoundVideo() && messageObject.isVoiceTranscriptionOpen()) {
-//                                AndroidUtilities.runOnUIThread(() -> updateMessagesVisiblePart(false), 450);
-//                            }
                             return result;
                         } else if (messageObject.isMusic()) {
                             return MediaController.getInstance().setPlaylist(messages, messageObject, mergeDialogId);
@@ -27261,6 +27262,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                                 new PremiumFeatureBottomSheet(ChatActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_VOICE_TO_TEXT, true).show();
                                 getMessagesController().pressTranscribeButton();
                             });
+                            try {
+                                topUndoView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+                            } catch (Exception ignored) {}
                         }
                     }
 
