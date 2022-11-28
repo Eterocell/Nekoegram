@@ -55,6 +55,7 @@
     <string name="ShowTabsOnForward">Показывать вкладки при пересылке</string>
     <string name="CheckAllAdministrated">Добавить управляемые</string>
     <string name="RearVideoMessages">Задняя камера в видеосообщениях</string>
+    <string name="HideAllTab">Скрыть вкладку \"Все чаты\"</string>
     <string name="TabTitleType">Показывать на вкладках</string>
     <string name="TabTitleTypeTip">Иконки синхронизируются с Telegram.</string>
     <string name="TabTitleTypeText">Названия</string>
@@ -249,6 +250,7 @@
     <string name="UploadloadSpeedBoost">Увеличение скорости отдачи</string>
     <string name="NoUpdateAvailablePlay">Пожалуйста, проверьте наличие обновлений в Play Store.</string>
     <string name="NoUpdateAvailablePlayDelay">Обновление в Play Store обычно происходит медленнее, чем прямые APK из-за проверки Google.</string>
+    <string name="ProviderTelegram">Telegram</string>
     <!-- Accessibility -->
     <string name="AccessibilitySettings">Специальные возможности</string>
     <string name="AccSeekbarHeading">Настройки ползунков</string>

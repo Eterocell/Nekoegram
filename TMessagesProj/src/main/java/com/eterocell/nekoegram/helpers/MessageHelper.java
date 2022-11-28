@@ -264,7 +264,7 @@ public class MessageHelper extends BaseController {
             return LocaleController.getString("Translating", R.string.Translating) + " " + LocaleController.getInstance().formatterDay.format((long) (messageObject.messageOwner.date) * 1000);
         }
         var translatedLanguage = messageObject.translatedLanguage;
-        if (translatedLanguage == null || translatedLanguage.first == null || translatedLanguage.second == null) {
+        if (translatedLanguage == null || "und".equals(translatedLanguage.first) || TextUtils.isEmpty(translatedLanguage.first) || TextUtils.isEmpty(translatedLanguage.second)) {
             return LocaleController.getString("Translated", R.string.Translated) + " " + LocaleController.getInstance().formatterDay.format((long) (messageObject.messageOwner.date) * 1000);
         }
         if (spannedStrings[0] == null) {
@@ -688,8 +688,23 @@ public class MessageHelper extends BaseController {
             obj.botStartParam = messageObject.botStartParam;
         }
 
+        replaceMessagesObject(dialogId, obj);
+    }
+
+    public void revealMessageContent(long dialogId, MessageObject messageObject) {
+        TLRPC.Message message = messageObject.messageOwner;
+
+        MessageObject obj = new MessageObject(currentAccount, message, false, true);
+        obj.revealed = true;
+        obj.generateCaption();
+        obj.generateLayout(null);
+
+        replaceMessagesObject(dialogId, obj);
+    }
+
+    private void replaceMessagesObject(long dialogId, MessageObject messageObject) {
         ArrayList<MessageObject> arrayList = new ArrayList<>();
-        arrayList.add(obj);
+        arrayList.add(messageObject);
         getNotificationCenter().postNotificationName(NotificationCenter.replaceMessagesObjects, dialogId, arrayList, false);
     }
 

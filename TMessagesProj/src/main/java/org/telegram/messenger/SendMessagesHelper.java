@@ -91,6 +91,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.eterocell.nekoegram.NekoConfig;
+
 public class SendMessagesHelper extends BaseController implements NotificationCenter.NotificationCenterDelegate {
 
     private HashMap<String, ArrayList<DelayedMessage>> delayedMessages = new HashMap<>();
@@ -3613,7 +3615,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                         newMsg.via_bot_name = "";
                     }
                 } else {
-                    newMsg.via_bot_id = Utilities.parseInt(params.get("bot"));
+                    newMsg.via_bot_id = Utilities.parseLong(params.get("bot"));
                 }
                 newMsg.flags |= TLRPC.MESSAGE_FLAG_HAS_BOT_ID;
             }
@@ -3817,7 +3819,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                         reqSend.top_msg_id = replyToTopMsg.getId();
                         reqSend.flags |= 512;
                     }
-                    if (updateStickersOreder) {
+                    if (!NekoConfig.disableStickersAutoReorder && updateStickersOreder) {
                         reqSend.update_stickersets_order = true;
                     }
                     if (newMsg.from_id != null) {
@@ -4203,7 +4205,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                             request.schedule_date = scheduleDate;
                             request.flags |= 1024;
                         }
-                        if (updateStickersOreder) {
+                        if (!NekoConfig.disableStickersAutoReorder && updateStickersOreder) {
                             request.update_stickersets_order = true;
                         }
 
@@ -8031,7 +8033,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             } finally {
                 try {
                     retriever.release();
-                } catch (RuntimeException | IOException ex) {
+                } catch (Throwable ex) {
                     // Ignore failures while cleaning up.
                 }
             }

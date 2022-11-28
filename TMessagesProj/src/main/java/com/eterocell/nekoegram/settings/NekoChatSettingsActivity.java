@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -24,6 +25,7 @@ import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.ActionBar.ThemeDescription;
 import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextCheckbox2Cell;
@@ -56,6 +58,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
     private int tryToOpenAllLinksInIVRow;
     private int disableJumpToNextRow;
     private int disableGreetingStickerRow;
+    private int disableStickersAutoReorderRow;
     private int doubleTapActionRow;
     private int maxRecentStickersRow;
     private int chat2Row;
@@ -286,6 +289,11 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                 ((TextCheckCell) view).setChecked(NekoConfig.markdownParseLinks);
             }
             listAdapter.notifyItemChanged(markdown2Row);
+        } else if (position == disableStickersAutoReorderRow) {
+            NekoConfig.toggleStickersAutoReorder();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.disableStickersAutoReorder);
+            }
         }
     }
 
@@ -314,6 +322,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
         tryToOpenAllLinksInIVRow = addRow("tryToOpenAllLinksInIV");
         disableJumpToNextRow = addRow("disableJumpToNext");
         disableGreetingStickerRow = addRow("disableGreetingSticker");
+        disableStickersAutoReorderRow = addRow("disableStickersAutoReorder");
         doubleTapActionRow = addRow("doubleTapAction");
         maxRecentStickersRow = addRow("maxRecentStickers");
         chat2Row = addRow();
@@ -466,7 +475,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, boolean partial) {
             switch (holder.getItemViewType()) {
-                case 1: {
+                case TYPE_SHADOW: {
                     if (position == messageMenu2Row) {
                         holder.itemView.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
                     } else {
@@ -474,7 +483,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                     }
                     break;
                 }
-                case 2: {
+                case TYPE_SETTINGS: {
                     TextSettingsCell textCell = (TextSettingsCell) holder.itemView;
                     textCell.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
                     if (position == doubleTapActionRow) {
@@ -510,7 +519,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                     }
                     break;
                 }
-                case 3: {
+                case TYPE_CHECK: {
                     TextCheckCell textCell = (TextCheckCell) holder.itemView;
                     textCell.setEnabled(true, null);
                     if (position == ignoreBlockedRow) {
@@ -543,10 +552,12 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                         textCell.setTextAndCheck(LocaleController.getString("MarkdownEnableByDefault", R.string.MarkdownEnableByDefault), !NekoConfig.disableMarkdownByDefault, true);
                     } else if (position == markdownParseLinksRow) {
                         textCell.setTextAndCheck(LocaleController.getString("MarkdownParseLinks", R.string.MarkdownParseLinks), NekoConfig.markdownParseLinks, false);
+                    } else if (position == disableStickersAutoReorderRow) {
+                        textCell.setTextAndCheck(LocaleController.getString("DisableStickersAutoReorder", R.string.DisableStickersAutoReorder), NekoConfig.disableStickersAutoReorder, true);
                     }
                     break;
                 }
-                case 4: {
+                case TYPE_HEADER: {
                     HeaderCell headerCell = (HeaderCell) holder.itemView;
                     if (position == chatRow) {
                         headerCell.setText(LocaleController.getString("Chat", R.string.Chat));
@@ -561,7 +572,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                     }
                     break;
                 }
-                case 7: {
+                case TYPE_INFO_PRIVACY: {
                     TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
                     if (position == markdown2Row) {
                         cell.getTextView().setMovementMethod(null);
@@ -570,7 +581,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                     }
                     break;
                 }
-                case 9: {
+                case TYPE_CHECKBOX: {
                     TextCheckbox2Cell cell = (TextCheckbox2Cell) holder.itemView;
                     int menuPosition = position - messageMenuRow - 1;
                     if (menuPosition == 0) {
@@ -621,25 +632,67 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
         @Override
         public int getItemViewType(int position) {
             if (position == chat2Row || position == stickerSize2Row || position == messageMenu2Row || position == media2Row) {
-                return 1;
+                return TYPE_SHADOW;
             } else if (position == doubleTapActionRow || position == maxRecentStickersRow || position == markdownParserRow) {
-                return 2;
+                return TYPE_SETTINGS;
             } else if ((position > chatRow && position < doubleTapActionRow) ||
                     (position > mediaRow && position < media2Row) ||
                     (position > markdownRow && position < markdown2Row) ||
                     position == hideTimeOnStickerRow
             ) {
-                return 3;
+                return TYPE_CHECK;
             } else if (position == chatRow || position == stickerSizeHeaderRow || position == messageMenuRow || position == mediaRow || position == markdownRow) {
-                return 4;
+                return TYPE_HEADER;
             } else if (position == markdown2Row) {
-                return 7;
+                return TYPE_INFO_PRIVACY;
             } else if (position > messageMenuRow && position < messageMenu2Row) {
-                return 9;
+                return TYPE_CHECKBOX;
             } else if (position == stickerSizeRow) {
                 return Integer.MAX_VALUE;
             }
-            return 2;
+            return TYPE_SETTINGS;
         }
+    }
+
+    @Override
+    public ArrayList<ThemeDescription> getThemeDescriptions() {
+        ArrayList<ThemeDescription> themeDescriptions = super.getThemeDescriptions();
+
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_CELLBACKGROUNDCOLOR, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_windowBackgroundWhite));
+
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_PROGRESSBAR, new Class[]{StickerSizeCell.class}, new String[]{"sizeBar"}, null, null, null, Theme.key_player_progress));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, new String[]{"sizeBar"}, null, null, null, Theme.key_player_progressBackground));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgInDrawable, Theme.chat_msgInMediaDrawable}, null, Theme.key_chat_inBubble));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgInSelectedDrawable, Theme.chat_msgInMediaSelectedDrawable}, null, Theme.key_chat_inBubbleSelected));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, Theme.chat_msgInDrawable.getShadowDrawables(), null, Theme.key_chat_inBubbleShadow));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, Theme.chat_msgInMediaDrawable.getShadowDrawables(), null, Theme.key_chat_inBubbleShadow));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutDrawable, Theme.chat_msgOutMediaDrawable}, null, Theme.key_chat_outBubble));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutDrawable, Theme.chat_msgOutMediaDrawable}, null, Theme.key_chat_outBubbleGradient1));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutDrawable, Theme.chat_msgOutMediaDrawable}, null, Theme.key_chat_outBubbleGradient2));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutDrawable, Theme.chat_msgOutMediaDrawable}, null, Theme.key_chat_outBubbleGradient3));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutSelectedDrawable, Theme.chat_msgOutMediaSelectedDrawable}, null, Theme.key_chat_outBubbleSelected));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutDrawable, Theme.chat_msgOutMediaDrawable}, null, Theme.key_chat_outBubbleShadow));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgInDrawable, Theme.chat_msgInMediaDrawable}, null, Theme.key_chat_inBubbleShadow));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_messageTextIn));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_messageTextOut));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutCheckDrawable}, null, Theme.key_chat_outSentCheck));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutCheckSelectedDrawable}, null, Theme.key_chat_outSentCheckSelected));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutCheckReadDrawable, Theme.chat_msgOutHalfCheckDrawable}, null, Theme.key_chat_outSentCheckRead));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgOutCheckReadSelectedDrawable, Theme.chat_msgOutHalfCheckSelectedDrawable}, null, Theme.key_chat_outSentCheckReadSelected));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, new Drawable[]{Theme.chat_msgMediaCheckDrawable, Theme.chat_msgMediaHalfCheckDrawable}, null, Theme.key_chat_mediaSentCheck));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_inReplyLine));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_outReplyLine));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_inReplyNameText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_outReplyNameText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_inReplyMessageText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_outReplyMessageText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_inReplyMediaMessageSelectedText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_outReplyMediaMessageSelectedText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_inTimeText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_outTimeText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_inTimeSelectedText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{StickerSizeCell.class}, null, null, null, Theme.key_chat_outTimeSelectedText));
+        return themeDescriptions;
     }
 }

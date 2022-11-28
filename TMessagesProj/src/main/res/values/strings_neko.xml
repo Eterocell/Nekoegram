@@ -58,6 +58,7 @@
     <string name="ShowTabsOnForward">Show tabs on forward</string>
     <string name="CheckAllAdministrated">Add administrated</string>
     <string name="RearVideoMessages">Rear camera in Video Messages</string>
+    <string name="HideAllTab">Hide \"All Chats\" tab</string>
     <string name="TabTitleType">Show on tabs</string>
     <string name="TabTitleTypeTip">Icons are cloud-synced by Telegram.</string>
     <string name="TabTitleTypeText">Titles</string>
@@ -253,6 +254,8 @@
     <string name="UploadloadSpeedBoost">Upload speed boost</string>
     <string name="NoUpdateAvailablePlay">Please check for update in Play Store.</string>
     <string name="NoUpdateAvailablePlayDelay">Update in Play Store usually comes slower than direct APKs due to Google\'s review.</string>
+    <string name="ProviderTelegram">Telegram</string>
+    <string name="DisableStickersAutoReorder">Disable sticker packs auto-reorder</string>
 
     <!-- Accessibility -->
     <string name="AccessibilitySettings">Accessibility settings</string>

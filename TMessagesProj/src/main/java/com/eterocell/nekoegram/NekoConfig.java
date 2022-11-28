@@ -74,6 +74,7 @@ public class NekoConfig {
     public static boolean disablePhotoSideAction = true;
     public static boolean hideKeyboardOnChatScroll = false;
     public static boolean rearVideoMessages = false;
+    public static boolean hideAllTab = false;
     public static boolean confirmAVMessage = false;
     public static boolean askBeforeCall = true;
     public static boolean disableNumberRounding = false;
@@ -137,6 +138,7 @@ public class NekoConfig {
     public static boolean newMarkdownParser = true;
     public static boolean markdownParseLinks = true;
     public static boolean uploadSpeedBoost = false;
+    public static boolean disableStickersAutoReorder = false;
 
     public static final String WS_ADDRESS = "ws.neko";
     private static int socksPort = -1;
@@ -283,6 +285,7 @@ public class NekoConfig {
             useSystemEmoji = preferences.getBoolean("useSystemEmoji", SharedConfig.useSystemEmoji);
             showTabsOnForward = preferences.getBoolean("showTabsOnForward", false);
             rearVideoMessages = preferences.getBoolean("rearVideoMessages", false);
+            hideAllTab = preferences.getBoolean("hideAllTab", false);
             tabsTitleType = preferences.getInt("tabsTitleType2", TITLE_TYPE_MIX);
             confirmAVMessage = preferences.getBoolean("confirmAVMessage", false);
             askBeforeCall = preferences.getBoolean("askBeforeCall", true);
@@ -326,6 +329,7 @@ public class NekoConfig {
             markdownParseLinks = preferences.getBoolean("markdownParseLinks", true);
             downloadSpeedBoost = preferences.getInt("downloadSpeedBoost2", BOOST_NONE);
             uploadSpeedBoost = preferences.getBoolean("uploadSpeedBoost", false);
+            disableStickersAutoReorder = preferences.getBoolean("disableStickersAutoReorder", false);
             preferences.registerOnSharedPreferenceChangeListener(listener);
 
             for (int a = 1; a <= 5; a++) {
@@ -396,6 +400,14 @@ public class NekoConfig {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("downloadSpeedBoost2", boost);
+        editor.apply();
+    }
+
+    public static void toggleStickersAutoReorder() {
+        disableStickersAutoReorder = !disableStickersAutoReorder;
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("disableStickersAutoReorder", disableStickersAutoReorder);
         editor.apply();
     }
 
@@ -727,6 +739,14 @@ public class NekoConfig {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("rearVideoMessages", rearVideoMessages);
+        editor.apply();
+    }
+
+    public static void toggleHideAllTab() {
+        hideAllTab = !hideAllTab;
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("hideAllTab", hideAllTab);
         editor.apply();
     }
 

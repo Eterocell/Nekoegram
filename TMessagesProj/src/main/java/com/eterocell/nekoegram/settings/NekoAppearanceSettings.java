@@ -16,6 +16,8 @@ import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.ActionBar.ThemeDescription;
+import org.telegram.ui.Cells.DrawerProfileCell;
 import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
@@ -53,6 +55,7 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
 
     private int foldersRow;
     private int showTabsOnForwardRow;
+    private int hideAllTabRow;
     private int tabsTitleTypeRow;
     private int folders2Row;
 
@@ -173,6 +176,12 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(NekoConfig.showTabsOnForward);
             }
+        } else if (position == hideAllTabRow) {
+            NekoConfig.toggleHideAllTab();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.hideAllTab);
+            }
+            getNotificationCenter().postNotificationName(NotificationCenter.dialogFiltersUpdated);
         } else if (position == tabsTitleTypeRow) {
             ArrayList<String> arrayList = new ArrayList<>();
             ArrayList<Integer> types = new ArrayList<>();
@@ -235,6 +244,7 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
 
         foldersRow = addRow("folders");
         showTabsOnForwardRow = addRow("showTabsOnForward");
+        hideAllTabRow = addRow("hideAllTab");
         tabsTitleTypeRow = addRow("tabsTitleType");
         folders2Row = addRow();
     }
@@ -248,7 +258,7 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, boolean partial) {
             switch (holder.getItemViewType()) {
-                case 2: {
+                case TYPE_SETTINGS: {
                     TextSettingsCell textCell = (TextSettingsCell) holder.itemView;
                     textCell.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
                     if (position == eventTypeRow) {
@@ -299,7 +309,7 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
                     }
                     break;
                 }
-                case 3: {
+                case TYPE_CHECK: {
                     TextCheckCell textCell = (TextCheckCell) holder.itemView;
                     textCell.setEnabled(true, null);
                     if (position == hidePhoneRow) {
@@ -326,10 +336,12 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
                         textCell.setTextAndCheck(LocaleController.getString("DarkenAvatarBackground", R.string.DarkenAvatarBackground), NekoConfig.avatarBackgroundDarken, true);
                     } else if (position == showTabsOnForwardRow) {
                         textCell.setTextAndCheck(LocaleController.getString("ShowTabsOnForward", R.string.ShowTabsOnForward), NekoConfig.showTabsOnForward, true);
+                    } else if (position == hideAllTabRow) {
+                        textCell.setTextAndCheck(LocaleController.getString("HideAllTab", R.string.HideAllTab), NekoConfig.hideAllTab, true);
                     }
                     break;
                 }
-                case 4: {
+                case TYPE_HEADER: {
                     HeaderCell headerCell = (HeaderCell) holder.itemView;
                     if (position == appearanceRow) {
                         headerCell.setText(LocaleController.getString("Appearance", R.string.Appearance));
@@ -338,7 +350,7 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
                     }
                     break;
                 }
-                case 7: {
+                case TYPE_INFO_PRIVACY: {
                     TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
                     if (position == folders2Row) {
                         cell.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
@@ -370,21 +382,49 @@ public class NekoAppearanceSettings extends BaseNekoSettingsActivity {
         @Override
         public int getItemViewType(int position) {
             if (position == appearance2Row || position == drawer2Row) {
-                return 1;
+                return TYPE_SHADOW;
             } else if (position == eventTypeRow || position == tabsTitleTypeRow || position == tabletModeRow) {
-                return 2;
-            } else if (position == newYearRow || position == showTabsOnForwardRow ||
+                return TYPE_SETTINGS;
+            } else if (position == newYearRow || position == showTabsOnForwardRow || position == hideAllTabRow ||
                     (position > appearanceRow && position <= disableNumberRoundingRow) ||
                     (position > drawerRow && position < drawer2Row)) {
-                return 3;
+                return TYPE_CHECK;
             } else if (position == appearanceRow || position == foldersRow) {
-                return 4;
+                return TYPE_HEADER;
             } else if (position == folders2Row) {
-                return 7;
+                return TYPE_INFO_PRIVACY;
             } else if (position == drawerRow) {
                 return Integer.MAX_VALUE;
             }
-            return 2;
+            return TYPE_SETTINGS;
         }
+    }
+
+    @Override
+    public ArrayList<ThemeDescription> getThemeDescriptions() {
+        ThemeDescription.ThemeDescriptionDelegate cellDelegate = () -> {
+            if (listView != null) {
+                for (int i = 0; i < listView.getChildCount(); i++) {
+                    View child = listView.getChildAt(i);
+                    if (child instanceof DrawerProfileCell) {
+                        DrawerProfileCell profileCell = (DrawerProfileCell) child;
+                        profileCell.applyBackground(true);
+                        profileCell.updateColors();
+                    }
+                }
+            }
+        };
+        ArrayList<ThemeDescription> themeDescriptions = super.getThemeDescriptions();
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chats_menuName));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chats_menuPhone));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chats_menuPhoneCats));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chats_menuCloudBackgroundCats));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chat_serviceBackground));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chats_menuTopShadow));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{DrawerProfileCell.class}, null, null, null, Theme.key_chats_menuTopShadowCats));
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_IMAGECOLOR, new Class[]{DrawerProfileCell.class}, new String[]{"darkThemeView"}, null, null, null, Theme.key_chats_menuName));
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_CELLBACKGROUNDCOLOR | ThemeDescription.FLAG_CHECKTAG, new Class[]{DrawerProfileCell.class}, null, null, cellDelegate, Theme.key_chats_menuTopBackgroundCats));
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_CELLBACKGROUNDCOLOR | ThemeDescription.FLAG_CHECKTAG, new Class[]{DrawerProfileCell.class}, null, null, cellDelegate, Theme.key_chats_menuTopBackground));
+        return themeDescriptions;
     }
 }

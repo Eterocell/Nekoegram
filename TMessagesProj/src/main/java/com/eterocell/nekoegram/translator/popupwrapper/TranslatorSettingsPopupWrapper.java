@@ -25,9 +25,7 @@ public class TranslatorSettingsPopupWrapper {
 
         if (swipeBackLayout != null) {
             var backItem = ActionBarMenuItem.addItem(windowLayout, R.drawable.msg_arrow_back, LocaleController.getString("Back", R.string.Back), false, resourcesProvider);
-            backItem.setOnClickListener(view -> {
-                swipeBackLayout.closeForeground();
-            });
+            backItem.setOnClickListener(view -> swipeBackLayout.closeForeground());
         }
 
         var items = new String[]{
@@ -65,13 +63,11 @@ public class TranslatorSettingsPopupWrapper {
             gap.setTag(R.id.fit_width_tag, 1);
             windowLayout.addView(gap, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 8));
 
-            var autoTranslatePopupWrapper = new AutoTranslatePopupWrapper(context, windowLayout.getSwipeBack(), dialogId, topicId, resourcesProvider);
+            var autoTranslatePopupWrapper = new AutoTranslatePopupWrapper(fragment, windowLayout.getSwipeBack(), dialogId, topicId, resourcesProvider);
             int autoTranslateSwipeBackIndex = windowLayout.addViewToSwipeBack(autoTranslatePopupWrapper.windowLayout);
             var autoTranslateItem = ActionBarMenuItem.addItem(windowLayout, R.drawable.msg_translate, LocaleController.getString("AutoTranslate", R.string.AutoTranslate), true, resourcesProvider);
             autoTranslateItem.setRightIcon(R.drawable.msg_arrowright);
-            autoTranslateItem.setOnClickListener(view -> {
-                subSwipeBackLayout.openForeground(autoTranslateSwipeBackIndex);
-            });
+            autoTranslateItem.setOnClickListener(view -> subSwipeBackLayout.openForeground(autoTranslateSwipeBackIndex));
         }
     }
 }

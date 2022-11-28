@@ -55,6 +55,7 @@
     <string name="ShowTabsOnForward">在转发页面显示文件夹</string>
     <string name="CheckAllAdministrated">添加管理的群组与频道</string>
     <string name="RearVideoMessages">视频留言默认使用后置摄像头</string>
+    <string name="HideAllTab">隐藏“所有聊天”标签页</string>
     <string name="TabTitleType">在标签栏上显示</string>
     <string name="TabTitleTypeTip">图标由 Telegram 云同步。</string>
     <string name="TabTitleTypeText">标题</string>
@@ -249,6 +250,7 @@
     <string name="UploadloadSpeedBoost">上传速度提升</string>
     <string name="NoUpdateAvailablePlay">请在 Play 商店检查更新。</string>
     <string name="NoUpdateAvailablePlayDelay">由于谷歌的审核，Play 商店中的更新通常比直接的 APK 来得慢。</string>
+    <string name="DisableStickersAutoReorder">禁用贴纸包自动重新排序</string>
     <!-- Accessibility -->
     <string name="AccessibilitySettings">无障碍设置</string>
 </resources>

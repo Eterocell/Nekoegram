@@ -29,6 +29,7 @@ import org.telegram.ui.ActionBar.ActionBarPopupWindow;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.INavigationLayout;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.ActionBar.ThemeDescription;
 import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.NotificationsCheckCell;
 import org.telegram.ui.Cells.ShadowSectionCell;
@@ -46,6 +47,7 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.ui.Components.URLSpanNoUnderline;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,6 +55,19 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class BaseNekoSettingsActivity extends BaseFragment {
 
     protected static final Object PARTIAL = new Object();
+
+    public static final int TYPE_SHADOW = 1;
+    public static final int TYPE_SETTINGS = 2;
+    public static final int TYPE_CHECK = 3;
+    public static final int TYPE_HEADER = 4;
+    public static final int TYPE_NOTIFICATION_CHECK = 5;
+    public static final int TYPE_DETAIL_SETTINGS = 6;
+    public static final int TYPE_INFO_PRIVACY = 7;
+    public static final int TYPE_TEXT = 8;
+    public static final int TYPE_CHECKBOX = 9;
+    public static final int TYPE_RADIO = 10;
+    public static final int TYPE_ACCOUNT = 11;
+    public static final int TYPE_BUYMEACOFFEE = 12;
 
     protected BlurredRecyclerView listView;
     protected BaseListAdapter listAdapter;
@@ -334,7 +349,7 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
         @Override
         public boolean isEnabled(RecyclerView.ViewHolder holder) {
             int type = holder.getItemViewType();
-            return type == 2 || type == 3 || type == 5 || type == 6 || type == 8 | type == 9 || type == 10 || type == 11 || type == 12;
+            return type == TYPE_SETTINGS || type == TYPE_CHECK || type == TYPE_NOTIFICATION_CHECK || type == TYPE_DETAIL_SETTINGS || type == TYPE_TEXT | type == TYPE_CHECKBOX || type == TYPE_RADIO || type == TYPE_ACCOUNT || type == TYPE_BUYMEACOFFEE;
         }
 
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, boolean partial) {
@@ -352,50 +367,50 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = null;
             switch (viewType) {
-                case 1:
+                case TYPE_SHADOW:
                     view = new ShadowSectionCell(mContext, resourcesProvider);
                     break;
-                case 2:
+                case TYPE_SETTINGS:
                     view = new TextSettingsCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 3:
+                case TYPE_CHECK:
                     view = new TextCheckCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 4:
+                case TYPE_HEADER:
                     view = new HeaderCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 5:
+                case TYPE_NOTIFICATION_CHECK:
                     view = new NotificationsCheckCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 6:
+                case TYPE_DETAIL_SETTINGS:
                     view = new TextDetailSettingsCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 7:
+                case TYPE_INFO_PRIVACY:
                     view = new TextInfoPrivacyCell(mContext, resourcesProvider);
                     view.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider, getThemedColor(Theme.key_windowBackgroundGrayShadow)));
                     break;
-                case 8:
+                case TYPE_TEXT:
                     view = new TextCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 9:
+                case TYPE_CHECKBOX:
                     view = new TextCheckbox2Cell(mContext);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 10:
+                case TYPE_RADIO:
                     view = new TextRadioCell(mContext, resourcesProvider);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 11:
+                case TYPE_ACCOUNT:
                     view = new AccountCell(mContext);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
-                case 12:
+                case TYPE_BUYMEACOFFEE:
                     view = new BuyMeACoffeeCell(mContext);
                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
                     break;
@@ -416,5 +431,78 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             outContent.setWebUri(Uri.parse("https://nekoegram.app"));
         }
+    }
+
+    @Override
+    public ArrayList<ThemeDescription> getThemeDescriptions() {
+        ThemeDescription.ThemeDescriptionDelegate blurDelegate = () -> {
+            if (fragmentView instanceof BlurContentView) {
+                ((BlurContentView) fragmentView).invalidateBlurredViews();
+            }
+        };
+        ArrayList<ThemeDescription> themeDescriptions = new ArrayList<>();
+
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_CELLBACKGROUNDCOLOR, new Class[]{TextSettingsCell.class, TextCheckCell.class, HeaderCell.class, NotificationsCheckCell.class, TextDetailSettingsCell.class, TextCell.class, TextCheckbox2Cell.class, TextRadioCell.class, AccountCell.class}, null, null, null, Theme.key_windowBackgroundWhite));
+        themeDescriptions.add(new ThemeDescription(fragmentView, ThemeDescription.FLAG_BACKGROUND, null, null, null, null, Theme.key_windowBackgroundGray));
+
+        if (hasWhiteActionBar()) {
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_BACKGROUND, null, null, null, null, Theme.key_windowBackgroundWhite));
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_AB_ITEMSCOLOR, null, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_AB_TITLECOLOR, null, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_AB_SELECTORCOLOR, null, null, null, null, Theme.key_actionBarWhiteSelector));
+        } else {
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_BACKGROUND, null, null, null, null, Theme.key_actionBarDefault));
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_AB_ITEMSCOLOR, null, null, null, null, Theme.key_actionBarDefaultIcon));
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_AB_TITLECOLOR, null, null, null, null, Theme.key_actionBarDefaultTitle));
+            themeDescriptions.add(new ThemeDescription(actionBar, ThemeDescription.FLAG_AB_SELECTORCOLOR, null, null, null, null, Theme.key_actionBarDefaultSelector));
+        }
+
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_LISTGLOWCOLOR, null, null, null, null, Theme.key_actionBarDefault));
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_SELECTOR, null, null, null, null, Theme.key_listSelector));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{View.class}, Theme.dividerPaint, null, null, Theme.key_divider));
+
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_BACKGROUNDFILTER, new Class[]{ShadowSectionCell.class}, null, null, null, Theme.key_windowBackgroundGrayShadow));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextSettingsCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextSettingsCell.class}, new String[]{"valueTextView"}, null, null, null, Theme.key_windowBackgroundWhiteValueText));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckCell.class}, new String[]{"valueTextView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayText2));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckCell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_switchTrack));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckCell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_switchTrackChecked));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{HeaderCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlueHeader));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{NotificationsCheckCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{NotificationsCheckCell.class}, new String[]{"valueTextView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayText2));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{NotificationsCheckCell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_switchTrack));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{NotificationsCheckCell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_switchTrackChecked));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextDetailSettingsCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextDetailSettingsCell.class}, new String[]{"valueTextView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayText2));
+
+        themeDescriptions.add(new ThemeDescription(listView, ThemeDescription.FLAG_BACKGROUNDFILTER, new Class[]{TextInfoPrivacyCell.class}, null, null, null, Theme.key_windowBackgroundGrayShadow));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextInfoPrivacyCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayText4));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCell.class}, new String[]{"imageView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayIcon));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckbox2Cell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckbox2Cell.class}, new String[]{"valueTextView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayText2));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckbox2Cell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_radioBackgroundChecked));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckbox2Cell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_checkboxDisabled));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextCheckbox2Cell.class}, new String[]{"checkBox"}, null, null, null, Theme.key_checkboxCheck));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextRadioCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextRadioCell.class}, new String[]{"valueTextView"}, null, null, null, Theme.key_windowBackgroundWhiteGrayText2));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextRadioCell.class}, new String[]{"radioButton"}, null, null, null, Theme.key_radioBackground));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{TextRadioCell.class}, new String[]{"radioButton"}, null, null, null, Theme.key_radioBackgroundChecked));
+
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{AccountCell.class}, new String[]{"textView"}, null, null, null, Theme.key_windowBackgroundWhiteBlackText));
+        themeDescriptions.add(new ThemeDescription(listView, 0, new Class[]{AccountCell.class}, new String[]{"checkImageView"}, null, null, null, Theme.key_switchTrackChecked));
+
+        themeDescriptions.add(new ThemeDescription(null, 0, null, null, null, blurDelegate, Theme.key_chat_BlurAlpha));
+        return themeDescriptions;
     }
 }

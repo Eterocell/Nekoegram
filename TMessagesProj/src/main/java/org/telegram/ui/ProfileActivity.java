@@ -1614,6 +1614,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     }
 
     @Override
+    public boolean isActionBarCrossfadeEnabled() {
+        return false;
+    }
+
+    @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (sharedMediaLayout != null) {
@@ -4868,7 +4873,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     LanguageDetectorTimeout.detectLanguage(
                             view, finalText,
                             (String fromLang) -> {
-                                fromLanguage[0] = fromLang;
+                                fromLanguage[0] = Translator.stripLanguageCode(fromLang);
                                 if (!Translator.isLanguageRestricted(fromLang) || (currentChat != null && (currentChat.has_link || ChatObject.isPublic(currentChat))) && ("uk".equals(fromLang) || "ru".equals(fromLang))) {
                                     withTranslate[0] = true;
                                 }
@@ -7572,7 +7577,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 if (isBot || getContactsController().contactsDict.get(userId) == null) {
                     if (MessagesController.isSupportUser(user)) {
-                        createAutoTranslateItem(context, userId);
+                        createAutoTranslateItem(userId);
                         if (userBlocked) {
                             otherItem.addSubItem(block_contact, R.drawable.msg_block, LocaleController.getString("Unblock", R.string.Unblock));
                         }
@@ -7580,7 +7585,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         if (currentEncryptedChat == null) {
                             createAutoDeleteItem(context);
                         }
-                        createAutoTranslateItem(context, userId);
+                        createAutoTranslateItem(userId);
                         if (isBot) {
 //                            if (!user.bot_nochats) {
 //                                otherItem.addSubItem(invite_to_group, R.drawable.msg_addbot, LocaleController.getString("BotInvite", R.string.BotInvite));
@@ -7602,7 +7607,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     if (currentEncryptedChat == null) {
                         createAutoDeleteItem(context);
                     }
-                    createAutoTranslateItem(context, userId);
+                    createAutoTranslateItem(userId);
 
                     if (!TextUtils.isEmpty(user.phone)) {
                         otherItem.addSubItem(share_contact, R.drawable.msg_share, LocaleController.getString("ShareContact", R.string.ShareContact));
@@ -7625,7 +7630,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (topicId == 0 && ChatObject.canUserDoAdminAction(chat, ChatObject.ACTION_DELETE_MESSAGES)) {
                 createAutoDeleteItem(context);
             }
-            createAutoTranslateItem(context, -chatId, topicId);
+            createAutoTranslateItem(-chatId, topicId);
             if (ChatObject.isChannel(chat)) {
                 if (isTopic) {
                     if (ChatObject.canManageTopic(currentAccount, chat, topicId)) {
@@ -7821,12 +7826,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         return drawable != null ? drawable : super.getThemedDrawable(drawableKey);
     }
 
-    private void createAutoTranslateItem(Context context, long dialogId) {
-        createAutoTranslateItem(context, dialogId, 0);
+    private void createAutoTranslateItem(long dialogId) {
+        createAutoTranslateItem(dialogId, 0);
     }
 
-    private void createAutoTranslateItem(Context context, long dialogId, int topicId) {
-        var autoTranslatePopupWrapper = new AutoTranslatePopupWrapper(context, otherItem.getPopupLayout().getSwipeBack(), dialogId, topicId, getResourceProvider());
+    private void createAutoTranslateItem(long dialogId, int topicId) {
+        var autoTranslatePopupWrapper = new AutoTranslatePopupWrapper(ProfileActivity.this, otherItem.getPopupLayout().getSwipeBack(), dialogId, topicId, getResourceProvider());
         otherItem.addSwipeBackItem(R.drawable.msg_translate, null, LocaleController.getString("AutoTranslate", R.string.AutoTranslate), autoTranslatePopupWrapper.windowLayout);
         otherItem.addColoredGap();
     }
@@ -9507,7 +9512,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 isPremiumFeatureAvailable(PremiumPreviewFragment.PREMIUM_FEATURE_ADVANCED_CHAT_MANAGEMENT) ? new SearchResult(809, LocaleController.getString(R.string.PremiumPreviewAdvancedChatManagement), LocaleController.getString(R.string.TelegramPremium), R.drawable.msg_settings_premium, () -> showDialog(new PremiumFeatureBottomSheet(ProfileActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_ADVANCED_CHAT_MANAGEMENT, false).setForceAbout())) : null,
                 isPremiumFeatureAvailable(PremiumPreviewFragment.PREMIUM_FEATURE_PROFILE_BADGE) ? new SearchResult(810, LocaleController.getString(R.string.PremiumPreviewProfileBadge), LocaleController.getString(R.string.TelegramPremium), R.drawable.msg_settings_premium, () -> showDialog(new PremiumFeatureBottomSheet(ProfileActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_PROFILE_BADGE, false).setForceAbout())) : null,
                 isPremiumFeatureAvailable(PremiumPreviewFragment.PREMIUM_FEATURE_ANIMATED_AVATARS) ? new SearchResult(811, LocaleController.getString(R.string.PremiumPreviewAnimatedProfiles), LocaleController.getString(R.string.TelegramPremium), R.drawable.msg_settings_premium, () -> showDialog(new PremiumFeatureBottomSheet(ProfileActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_ANIMATED_AVATARS, false).setForceAbout())) : null,
-                isPremiumFeatureAvailable(PremiumPreviewFragment.PREMIUM_FEATURE_APPLICATION_ICONS) ? new SearchResult(812, LocaleController.getString(R.string.PremiumPreviewAppIcon), LocaleController.getString(R.string.TelegramPremium), R.drawable.msg_settings_premium, () -> showDialog(new PremiumFeatureBottomSheet(ProfileActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_APPLICATION_ICONS, false).setForceAbout())) : null,
+                //isPremiumFeatureAvailable(PremiumPreviewFragment.PREMIUM_FEATURE_APPLICATION_ICONS) ? new SearchResult(812, LocaleController.getString(R.string.PremiumPreviewAppIcon), LocaleController.getString(R.string.TelegramPremium), R.drawable.msg_settings_premium, () -> showDialog(new PremiumFeatureBottomSheet(ProfileActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_APPLICATION_ICONS, false).setForceAbout())) : null,
                 isPremiumFeatureAvailable(PremiumPreviewFragment.PREMIUM_FEATURE_EMOJI_STATUS) ? new SearchResult(813, LocaleController.getString(R.string.PremiumPreviewEmojiStatus), LocaleController.getString(R.string.TelegramPremium), R.drawable.msg_settings_premium, () -> showDialog(new PremiumFeatureBottomSheet(ProfileActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_EMOJI_STATUS, false).setForceAbout())) : null,
 
                 new SearchResult(400, LocaleController.getString("Language", R.string.Language), R.drawable.msg_language, () -> presentFragment(new LanguageSelectActivity())),
