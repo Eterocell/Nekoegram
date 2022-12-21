@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.DocumentObject;
+import org.telegram.messenger.Emoji;
 import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaDataController;
@@ -101,11 +102,7 @@ public class ReactedUsersListView extends FrameLayout {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             listView.setVerticalScrollbarThumbDrawable(new ColorDrawable(Theme.getColor(Theme.key_listSelector)));
         }
-        listView.setAdapter(adapter = new RecyclerListView.SelectionAdapter() {
-            @Override
-            public boolean isEnabled(RecyclerView.ViewHolder holder) {
-                return true;
-            }
+        listView.setAdapter(adapter = new RecyclerView.Adapter() {
 
             @NonNull
             @Override
@@ -375,7 +372,7 @@ public class ReactedUsersListView extends FrameLayout {
         SimpleTextView titleView;
         BackupImageView reactView;
         AvatarDrawable avatarDrawable = new AvatarDrawable();
-        //View overlaySelectorView;
+        View overlaySelectorView;
 
         ReactedUserHolderView(@NonNull Context context) {
             super(context);
@@ -385,7 +382,14 @@ public class ReactedUsersListView extends FrameLayout {
             avatarView.setRoundRadius(AndroidUtilities.dp(32));
             addView(avatarView, LayoutHelper.createFrameRelatively(36, 36, Gravity.START | Gravity.CENTER_VERTICAL, 8, 0, 0, 0));
 
-            titleView = new SimpleTextView(context);
+            titleView = new SimpleTextView(context) {
+                @Override
+                public boolean setText(CharSequence value) {
+                    value = Emoji.replaceEmoji(value, getPaint().getFontMetricsInt(), AndroidUtilities.dp(14), false);
+                    return super.setText(value);
+                }
+            };
+            NotificationCenter.listenEmojiLoading(titleView);
             titleView.setTextSize(16);
             titleView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuItem));
             titleView.setEllipsizeByGradient(true);
@@ -398,9 +402,9 @@ public class ReactedUsersListView extends FrameLayout {
             reactView = new BackupImageView(context);
             addView(reactView, LayoutHelper.createFrameRelatively(24, 24, Gravity.END | Gravity.CENTER_VERTICAL, 0, 0, 12, 0));
 
-            //overlaySelectorView = new View(context);
-            //overlaySelectorView.setBackground(Theme.getSelectorDrawable(false));
-            //addView(overlaySelectorView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+            overlaySelectorView = new View(context);
+            overlaySelectorView.setBackground(Theme.getSelectorDrawable(false));
+            addView(overlaySelectorView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         }
 
         void setUserReaction(TLRPC.MessagePeerReaction reaction) {
@@ -429,7 +433,9 @@ public class ReactedUsersListView extends FrameLayout {
                         reactView.setImageDrawable(null);
                     }
                 } else {
-                    reactView.setAnimatedEmojiDrawable(new AnimatedEmojiDrawable(AnimatedEmojiDrawable.CACHE_TYPE_MESSAGES, currentAccount, visibleReaction.documentId));
+                    AnimatedEmojiDrawable drawable = new AnimatedEmojiDrawable(AnimatedEmojiDrawable.CACHE_TYPE_MESSAGES, currentAccount, visibleReaction.documentId);
+                    drawable.setColorFilter(Theme.chat_animatedEmojiTextColorFilter);
+                    reactView.setAnimatedEmojiDrawable(drawable);
                     hasReactImage = true;
                 }
                 setContentDescription(LocaleController.formatString("AccDescrReactedWith", R.string.AccDescrReactedWith, UserObject.getUserName(u), reaction.reaction));

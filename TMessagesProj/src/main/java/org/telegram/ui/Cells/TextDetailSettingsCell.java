@@ -38,7 +38,7 @@ public class TextDetailSettingsCell extends FrameLayout {
     }
 
     public TextDetailSettingsCell(Context context, Theme.ResourcesProvider resourcesProvider) {
-        this(context, false, null);
+        this(context, false, resourcesProvider);
     }
 
     public TextDetailSettingsCell(Context context, boolean valueOnly, Theme.ResourcesProvider resourcesProvider) {
@@ -106,6 +106,14 @@ public class TextDetailSettingsCell extends FrameLayout {
     public void setTextAndValue(String text, CharSequence value, boolean divider) {
         textView.setText(text);
         valueTextView.setText(value);
+        needDivider = divider;
+        imageView.setVisibility(GONE);
+        setWillNotDraw(!divider);
+    }
+
+    public void setTextAndValueWithEmoji(String text, CharSequence value, boolean divider) {
+        textView.setText(text);
+        valueTextView.setText(Emoji.replaceEmoji(value, valueTextView.getPaint().getFontMetricsInt(), AndroidUtilities.dp(13), false));
         needDivider = divider;
         imageView.setVisibility(GONE);
         setWillNotDraw(!divider);
