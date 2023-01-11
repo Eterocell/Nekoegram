@@ -351,6 +351,10 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         public boolean isVideo;
         public boolean isMuted;
         public boolean canDeleteAfter;
+        public boolean hasSpoiler;
+
+        public boolean isChatPreviewSpoilerRevealed;
+        public boolean isAttachSpoilerRevealed;
 
         public PhotoEntry(int bucketId, int imageId, long dateTaken, String path, int orientation, boolean isVideo, int width, int height, long size) {
             this.bucketId = bucketId;
@@ -369,6 +373,12 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         }
 
         @Override
+        public void copyFrom(MediaEditState state) {
+            super.copyFrom(state);
+            this.hasSpoiler = state instanceof PhotoEntry && ((PhotoEntry) state).hasSpoiler;
+        }
+
+        @Override
         public String getPath() {
             return path;
         }
@@ -381,6 +391,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     filterPath = null;
                 }
             }
+            hasSpoiler = false;
             super.reset();
         }
     }
