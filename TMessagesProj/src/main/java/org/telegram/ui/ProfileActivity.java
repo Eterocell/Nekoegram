@@ -65,6 +65,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -236,6 +237,7 @@ import com.eterocell.nekoegram.DatacenterActivity;
 import com.eterocell.nekoegram.NekoConfig;
 import com.eterocell.nekoegram.SimpleTextViewSwitcher;
 import com.eterocell.nekoegram.helpers.LanguageDetectorTimeout;
+import com.eterocell.nekoegram.helpers.PopupHelper;
 import com.eterocell.nekoegram.settings.NekoSettingsActivity;
 import com.eterocell.nekoegram.translator.popupwrapper.AutoTranslatePopupWrapper;
 import com.eterocell.nekoegram.translator.Translator;
@@ -632,6 +634,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private float customAvatarProgress;
     private float customPhotoOffset;
     private boolean hasFallbackPhoto;
+    private boolean hasCustomPhoto;
     private ImageReceiver fallbackImage;
 
     public int getTopicId() {
@@ -3844,6 +3847,20 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         info.setText(getText() + ", " + nameTextViewRightDrawableContentDescription);
                     }
                 }
+
+                @Override
+                public boolean performLongClick(float x, float y) {
+                    if (this.equals(nameTextView[1])) {
+                        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+                        PopupHelper.showCopyPopup(ProfileActivity.this, LocaleController.getString("Copy", R.string.Copy), nameTextView[1], x, y, () -> {
+                            AndroidUtilities.addToClipboard(nameTextView[1].getText());
+                            BulletinFactory.of(ProfileActivity.this).createCopyBulletin(LocaleController.formatString("TextCopied", R.string.TextCopied)).show();
+                        });
+                        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                        return true;
+                    }
+                    return false;
+                }
             };
             if (a == 1) {
                 nameTextView[a].setTextColor(getThemedColor(Theme.key_profile_title));
@@ -3860,17 +3877,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             nameTextView[a].setAlpha(a == 0 ? 0.0f : 1.0f);
             if (a == 1) {
                 nameTextView[a].setScrollNonFitText(true);
-                nameTextView[a].setOnLongClickListener(v -> {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
-                    builder.setItems(new CharSequence[]{LocaleController.getString("Copy", R.string.Copy)}, new int[]{R.drawable.msg_copy}, (dialogInterface, i) -> {
-                        if (i == 0) {
-                            AndroidUtilities.addToClipboard(((SimpleTextView) v).getText());
-                            BulletinFactory.of(this).createCopyBulletin(LocaleController.formatString("TextCopied", R.string.TextCopied)).show();
-                        }
-                    });
-                    showDialog(builder.create());
-                    return true;
-                });
+                nameTextView[a].setLongClickable(true);
                 nameTextView[a].setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             }
             nameTextView[a].setFocusable(a == 0);
@@ -3932,7 +3939,22 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         checkPhotoDescriptionAlpha();
         avatarContainer2.addView(animatedStatusView);
 
-        idTextView = new SimpleTextViewSwitcher(context);
+        idTextView = new SimpleTextViewSwitcher(context) {
+            @Override
+            public boolean performLongClick(float x, float y) {
+                sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+                Object tag = idTextView.getTag(R.id.id_copy);
+                if (tag instanceof Long) {
+                    PopupHelper.showCopyPopup(ProfileActivity.this, LocaleController.getString("CopyID", R.string.CopyID), idTextView, x, y, () -> {
+                        AndroidUtilities.addToClipboard(String.valueOf(tag));
+                        BulletinFactory.of(ProfileActivity.this).createCopyBulletin(LocaleController.formatString("TextCopied", R.string.TextCopied)).show();
+                    });
+                    performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                    return true;
+                }
+                return false;
+            }
+        };
         idTextView.setVisibility(NekoConfig.idType == NekoConfig.ID_TYPE_HIDDEN ? View.GONE : View.VISIBLE);
         idTextView.setFactory(() -> {
             SimpleTextView view = new SimpleTextView(context);
@@ -3953,21 +3975,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 presentFragment(new DatacenterActivity((int) tag));
             }
         });
-        idTextView.setOnLongClickListener(v -> {
-            Object tag = idTextView.getTag(R.id.id_copy);
-            if (tag instanceof Long) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
-                builder.setItems(new CharSequence[]{LocaleController.getString("CopyID", R.string.CopyID)}, new int[]{R.drawable.msg_copy}, (dialogInterface, i) -> {
-                    if (i == 0) {
-                        AndroidUtilities.addToClipboard(String.valueOf(tag));
-                        BulletinFactory.of(this).createCopyBulletin(LocaleController.formatString("TextCopied", R.string.TextCopied)).show();
-                    }
-                });
-                showDialog(builder.create());
-                return true;
-            }
-            return false;
-        });
+        idTextView.setLongClickable(true);
         avatarContainer2.addView(idTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 118 - 4, -2, 4, 0));
 
         mediaCounterTextView = new AudioPlayerAlert.ClippingTextViewSwitcher(context) {
@@ -6712,14 +6720,16 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
                 boolean onlineTextCrosafade = false;
 
-                ChatAvatarContainer avatarContainer = ((ChatActivityInterface) previousTransitionFragment).getAvatarContainer();
-                if (avatarContainer.getSubtitleTextView().getLeftDrawable() != null || avatarContainer.statusMadeShorter[0]) {
-                    transitionOnlineText = avatarContainer.getSubtitleTextView();
-                    avatarContainer2.invalidate();
-                    onlineTextCrosafade = true;
-                    onlineTextView[0].setAlpha(0f);
-                    onlineTextView[1].setAlpha(0f);
-                    animators.add(ObjectAnimator.ofFloat(onlineTextView[1], View.ALPHA, 1.0f));
+                if (previousTransitionFragment != null) {
+                    ChatAvatarContainer avatarContainer = previousTransitionFragment.getAvatarContainer();
+                    if (avatarContainer != null && avatarContainer.getSubtitleTextView().getLeftDrawable() != null || avatarContainer.statusMadeShorter[0]) {
+                        transitionOnlineText = avatarContainer.getSubtitleTextView();
+                        avatarContainer2.invalidate();
+                        onlineTextCrosafade = true;
+                        onlineTextView[0].setAlpha(0f);
+                        onlineTextView[1].setAlpha(0f);
+                        animators.add(ObjectAnimator.ofFloat(onlineTextView[1], View.ALPHA, 1.0f));
+                    }
                 }
 
                 if (!onlineTextCrosafade) {
@@ -7429,6 +7439,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         boolean shortStatus;
 
         hasFallbackPhoto = false;
+        hasCustomPhoto = false;
         if (userId != 0) {
             TLRPC.User user = getMessagesController().getUser(userId);
             if (user == null) {
@@ -7494,6 +7505,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     }
                 }
             }
+            hasCustomPhoto = user.photo != null && user.photo.personal;
             try {
                 newString = Emoji.replaceEmoji(newString, nameTextView[1].getPaint().getFontMetricsInt(), AndroidUtilities.dp(24), false);
             } catch (Exception ignore) {
@@ -10804,9 +10816,16 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             }
 
         } else {
-            if (onlineTextView[2] != null) {
-                onlineTextView[2].setAlpha(photoDescriptionProgress);
+            if (hasCustomPhoto) {
+                if (onlineTextView[2] != null) {
+                    onlineTextView[2].setAlpha(photoDescriptionProgress);
+                }
+            } else {
+                if (onlineTextView[2] != null) {
+                    onlineTextView[2].setAlpha(0);
+                }
             }
+
         }
 
     }

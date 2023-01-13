@@ -1624,16 +1624,16 @@ public class AndroidUtilities {
                 try {
                     Typeface t;
                     switch (assetPath) {
-                        case "fonts/rmedium.ttf":
+                        case TYPEFACE_ROBOTO_MEDIUM:
                             t = Typeface.create("sans-serif-medium", Typeface.NORMAL);
                             break;
                         case "fonts/ritalic.ttf":
                             t = Typeface.create("sans-serif", Typeface.ITALIC);
                             break;
-                        case "fonts/rmediumitalic.ttf":
+                        case TYPEFACE_ROBOTO_MEDIUM_ITALIC:
                             t = Typeface.create("sans-serif-medium", Typeface.ITALIC);
                             break;
-                        case "fonts/rmono.ttf":
+                        case TYPEFACE_ROBOTO_MONO:
                             t = Typeface.MONOSPACE;
                             break;
                         case "fonts/rcondensedbold.ttf":
@@ -2675,7 +2675,7 @@ public class AndroidUtilities {
     }
 
     public static boolean shouldShowClipboardToast() {
-        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !OneUIUtilities.hasBuiltInClipboardToasts()) && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU;
+        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !OneUIUtilities.hasBuiltInClipboardToasts()) && (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || XiaomiUtilities.isMIUI());
     }
 
     public static boolean addToClipboard(CharSequence str) {

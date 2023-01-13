@@ -1327,9 +1327,14 @@ public class EmojiView extends FrameLayout implements NotificationCenter.Notific
     }
 
     public EmojiView(BaseFragment fragment, boolean needAnimatedEmoji, boolean needStickers, boolean needGif, final Context context, boolean needSearch, final TLRPC.ChatFull chatFull, ViewGroup parentView, Theme.ResourcesProvider resourcesProvider) {
+        this(fragment, needAnimatedEmoji, false, needStickers, needGif, context, needSearch, chatFull, parentView, resourcesProvider);
+    }
+
+    public EmojiView(BaseFragment fragment, boolean needAnimatedEmoji, boolean needEmojisForNonPremium, boolean needStickers, boolean needGif, final Context context, boolean needSearch, final TLRPC.ChatFull chatFull, ViewGroup parentView, Theme.ResourcesProvider resourcesProvider) {
         super(context);
         this.fragment = fragment;
-        this.allowAnimatedEmoji = needAnimatedEmoji && UserConfig.getInstance(currentAccount).isPremium();
+        this.allowEmojisForNonPremium = needEmojisForNonPremium;
+        this.allowAnimatedEmoji = needAnimatedEmoji && (UserConfig.getInstance(currentAccount).isPremium() || needEmojisForNonPremium);
         this.resourcesProvider = resourcesProvider;
 
         int color = getThemedColor(Theme.key_chat_emojiBottomPanelIcon);
@@ -5626,6 +5631,12 @@ public class EmojiView extends FrameLayout implements NotificationCenter.Notific
         return stickersGridAdapter != null && stickersGridAdapter.getItemCount() > 0;
     }
 
+    private Runnable updateStickersLoadedDelayed = () -> {
+        if (emojiAdapter != null) {
+            emojiAdapter.notifyDataSetChanged(true);
+        }
+    };
+
     @SuppressWarnings("unchecked")
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
@@ -5674,9 +5685,8 @@ public class EmojiView extends FrameLayout implements NotificationCenter.Notific
                     }
                 }
             }
-            if (emojiAdapter != null) {
-                emojiAdapter.notifyDataSetChanged(true);
-            }
+            AndroidUtilities.cancelRunOnUIThread(updateStickersLoadedDelayed);
+            AndroidUtilities.runOnUIThread(updateStickersLoadedDelayed, 100);
         } else if (id == NotificationCenter.emojiLoaded) {
             if (stickersGridView != null) {
                 int count = stickersGridView.getChildCount();
@@ -6662,7 +6672,7 @@ public class EmojiView extends FrameLayout implements NotificationCenter.Notific
                 if (set instanceof TLRPC.TL_stickerSetFullCovered) {
                     pack.documents = ((TLRPC.TL_stickerSetFullCovered) set).documents;
                 } else if (set instanceof TLRPC.TL_stickerSetNoCovered) {
-                    TLRPC.TL_messages_stickerSet stickerSet = mediaDataController.getStickerSet(MediaDataController.getInputStickerSet(set.set), false);
+                    TLRPC.TL_messages_stickerSet stickerSet = mediaDataController.getStickerSet(MediaDataController.getInputStickerSet(set.set), set.set.hash, false);
                     if (stickerSet != null) {
                         pack.documents = stickerSet.documents;
                     }
@@ -6829,15 +6839,17 @@ public class EmojiView extends FrameLayout implements NotificationCenter.Notific
         public void notifyDataSetChanged(boolean updateEmojipack) {
             ArrayList<Integer> prevRowHashCodes = new ArrayList<>(rowHashCodes);
 
-            /*final MediaDataController mediaDataController = MediaDataController.getInstance(currentAccount);
-            ArrayList<TLRPC.StickerSetCovered> featured = mediaDataController.getFeaturedEmojiSets();
-            featuredEmojiSets.clear();
-            for (int a = 0, N = featured.size(); a < N; a++) {
-                TLRPC.StickerSetCovered set = featured.get(a);
-                if (!mediaDataController.isStickerPackInstalled(set.set.id) || installedEmojiSets.contains(set.set.id)) {
-                    featuredEmojiSets.add(set);
+            if (!UserConfig.getInstance(currentAccount).isPremium() && allowEmojisForNonPremium) {
+                final MediaDataController mediaDataController = MediaDataController.getInstance(currentAccount);
+                ArrayList<TLRPC.StickerSetCovered> featured = mediaDataController.getFeaturedEmojiSets();
+                featuredEmojiSets.clear();
+                for (int a = 0, N = featured.size(); a < N; a++) {
+                    TLRPC.StickerSetCovered set = featured.get(a);
+                    if (!mediaDataController.isStickerPackInstalled(set.set.id) || installedEmojiSets.contains(set.set.id)) {
+                        featuredEmojiSets.add(set);
+                    }
                 }
-            }*/
+            }
 
             processEmoji(updateEmojipack);
             updateRows();
