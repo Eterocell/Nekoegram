@@ -10,6 +10,7 @@ import com.eterocell.nekoegram.settings.BaseNekoSettingsActivity;
 import com.eterocell.nekoegram.settings.NekoAppearanceSettings;
 import com.eterocell.nekoegram.settings.NekoChatSettingsActivity;
 import com.eterocell.nekoegram.settings.NekoDonateActivity;
+import com.eterocell.nekoegram.settings.NekoEmojiSettingsActivity;
 import com.eterocell.nekoegram.settings.NekoExperimentalSettingsActivity;
 import com.eterocell.nekoegram.settings.NekoGeneralSettingsActivity;
 import com.eterocell.nekoegram.settings.NekoPasscodeSettingsActivity;
@@ -51,6 +52,9 @@ public class SettingsHelper {
                 case "experimental":
                 case "e":
                     fragment = new NekoExperimentalSettingsActivity(false, false);
+                    break;
+                case "emoji":
+                    fragment = new NekoEmojiSettingsActivity();
                     break;
                 case "general":
                 case "g":

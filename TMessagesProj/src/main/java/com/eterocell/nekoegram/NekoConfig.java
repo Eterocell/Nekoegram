@@ -3,8 +3,6 @@ package com.eterocell.nekoegram;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -19,9 +17,7 @@ import org.telegram.messenger.SharedConfig;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,8 +58,6 @@ public class NekoConfig {
     public static final int BOOST_NONE = 0;
     public static final int BOOST_AVERAGE = 1;
     public static final int BOOST_EXTREME = 2;
-
-    private static final String EMOJI_FONT_AOSP = "NotoColorEmoji.ttf";
 
     private static final Object sync = new Object();
     public static boolean useIPv6 = false;
@@ -139,6 +133,7 @@ public class NekoConfig {
     public static boolean markdownParseLinks = true;
     public static boolean uploadSpeedBoost = false;
     public static boolean disableStickersAutoReorder = false;
+    public static boolean sendLargePhotos = true;
 
     public static final String WS_ADDRESS = "ws.neko";
     private static int socksPort = -1;
@@ -155,12 +150,6 @@ public class NekoConfig {
     public static boolean residentNotification = false;
 
     public static boolean shouldNOTTrustMe = false;
-
-    public static boolean customEmojiFont;
-    public static String customEmojiFontPath;
-    private static Typeface customEmojiTypeface;
-    private static Typeface systemEmojiTypeface;
-    public static boolean loadSystemEmojiFailed = false;
 
     public static ArrayList<TLRPC.Update> pendingChangelog;
 
@@ -296,8 +285,6 @@ public class NekoConfig {
             idType = preferences.getInt("idType", ID_TYPE_API);
             autoPauseVideo = preferences.getBoolean("autoPauseVideo", true);
             disableProximityEvents = preferences.getBoolean("disableProximityEvents", false);
-            customEmojiFontPath = preferences.getString("customEmojiFontPath", "");
-            customEmojiFont = preferences.getBoolean("customEmojiFont", false);
             mapDriftingFix = preferences.getBoolean("mapDriftingFix", isChineseUser);
             voiceEnhancements = preferences.getBoolean("voiceEnhancements", false);
             disableInstantCamera = preferences.getBoolean("disableInstantCamera", false);
@@ -330,6 +317,7 @@ public class NekoConfig {
             downloadSpeedBoost = preferences.getInt("downloadSpeedBoost2", BOOST_NONE);
             uploadSpeedBoost = preferences.getBoolean("uploadSpeedBoost", false);
             disableStickersAutoReorder = preferences.getBoolean("disableStickersAutoReorder", false);
+            sendLargePhotos = preferences.getBoolean("sendLargePhotos", true);
             preferences.registerOnSharedPreferenceChangeListener(listener);
 
             for (int a = 1; a <= 5; a++) {
@@ -400,6 +388,14 @@ public class NekoConfig {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("downloadSpeedBoost2", boost);
+        editor.apply();
+    }
+
+    public static void toggleSendLargePhotos() {
+        sendLargePhotos = !sendLargePhotos;
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("sendLargePhotos", sendLargePhotos);
         editor.apply();
     }
 
@@ -940,103 +936,6 @@ public class NekoConfig {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("maxRecentStickers", maxRecentStickers);
         editor.apply();
-    }
-
-    public static void toggleCustomEmojiFont() {
-        customEmojiFont = !customEmojiFont;
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("customEmojiFont", customEmojiFont);
-        editor.apply();
-    }
-
-    public static boolean setCustomEmojiFontPath(String path) {
-        if (path != null) {
-            Typeface typeface;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                typeface = new Typeface.Builder(path)
-                        .build();
-            } else {
-                typeface = Typeface.createFromFile(path);
-            }
-            if (typeface == null || typeface.equals(Typeface.DEFAULT)) {
-                return false;
-            }
-            customEmojiTypeface = typeface;
-            customEmojiFontPath = path;
-        } else {
-            customEmojiTypeface = null;
-            customEmojiFontPath = null;
-        }
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("customEmojiFontPath", customEmojiFontPath);
-        editor.apply();
-        return true;
-    }
-
-    public static File getSystemEmojiFontPath() {
-        try (var br = new BufferedReader(new FileReader("/system/etc/fonts.xml"))) {
-            String line;
-            var ignored = false;
-            while ((line = br.readLine()) != null) {
-                var trimmed = line.trim();
-                if (trimmed.startsWith("<family") && trimmed.contains("ignore=\"true\"")) {
-                    ignored = true;
-                } else if (trimmed.startsWith("</family>")) {
-                    ignored = false;
-                } else if (trimmed.startsWith("<font") && !ignored) {
-                    var start = trimmed.indexOf(">");
-                    var end = trimmed.indexOf("<", 1);
-                    if (start > 0 && end > 0) {
-                        var font = trimmed.substring(start + 1, end);
-                        if (font.toLowerCase().contains("emoji")) {
-                            File file = new File("/system/fonts/" + font);
-                            if (file.exists()) {
-                                FileLog.d("emoji font file fonts.xml = " + font);
-                                return file;
-                            }
-                        }
-                    }
-                }
-            }
-            br.close();
-
-            var fileAOSP = new File("/system/fonts/" + EMOJI_FONT_AOSP);
-            if (fileAOSP.exists()) {
-                return fileAOSP;
-            }
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return null;
-    }
-
-    public static Typeface getSystemEmojiTypeface() {
-        if (!loadSystemEmojiFailed && systemEmojiTypeface == null) {
-            var font = getSystemEmojiFontPath();
-            if (font != null) {
-                systemEmojiTypeface = Typeface.createFromFile(font);
-            }
-            if (systemEmojiTypeface == null) {
-                loadSystemEmojiFailed = true;
-            }
-        }
-        return systemEmojiTypeface;
-    }
-
-    public static Typeface getCustomEmojiTypeface() {
-        if (customEmojiTypeface == null) {
-            try {
-                customEmojiTypeface = Typeface.createFromFile(customEmojiFontPath);
-            } catch (Exception e) {
-                FileLog.e(e);
-                customEmojiTypeface = null;
-                if (customEmojiFont) NekoConfig.toggleCustomEmojiFont();
-                setCustomEmojiFontPath(null);
-            }
-        }
-        return customEmojiTypeface;
     }
 
     public static int getNotificationColor() {

@@ -90,6 +90,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.remote.EmojiHelper;
 
 public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLayout {
 
@@ -110,6 +111,7 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
     public final static int TYPE_DEFAULT = 0;
     public final static int TYPE_MUSIC = 1;
     public final static int TYPE_RINGTONE = 2;
+    public final static int TYPE_EMOJI = 3;
 
     private int type;
 
@@ -159,6 +161,7 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
     private final static int search_button = 0;
     private final static int sort_button = 6;
     public boolean isSoundPicker;
+    public boolean isEmojiPicker;
 
     private static class ListItem {
         public int icon;
@@ -203,6 +206,7 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
         listAdapter = new ListAdapter(context);
         allowMusic = type == TYPE_MUSIC;
         isSoundPicker = type == TYPE_RINGTONE;
+        isEmojiPicker = type == TYPE_EMOJI;
         sortByName = SharedConfig.sortFilesByName;
         loadRecentFiles();
 
@@ -801,6 +805,9 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
                 if (isSoundPicker && !isRingtone(item.file)) {
                     return false;
                 }
+                if (isEmojiPicker && !isEmojiFont(item.file)) {
+                    return false;
+                }
                 if (item.file.length() == 0) {
                     return false;
                 }
@@ -863,6 +870,14 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
         }
 
         return true;
+    }
+
+    public boolean isEmojiFont(File file) {
+        boolean isValidEmojiFont = EmojiHelper.isValidEmojiPack(file);
+        if (!isValidEmojiFont) {
+            AndroidUtilities.runOnUIThread(() -> BulletinFactory.of(parentAlert.getContainer(), null).createErrorBulletinSubtitle(LocaleController.formatString("InvalidFormatError", R.string.InvalidFormatError), LocaleController.formatString("InvalidCustomEmojiTypeface", R.string.InvalidCustomEmojiTypeface), resourcesProvider).show());
+        }
+        return isValidEmojiFont;
     }
 
     public void setMaxSelectedFiles(int value) {
@@ -960,13 +975,18 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
                 ListItem item = new ListItem();
                 item.title = file.getName();
                 item.file = file;
-                String fname = file.getName();
-                String[] sp = fname.split("\\.");
-                item.ext = sp.length > 1 ? sp[sp.length - 1] : "?";
-                item.subtitle = AndroidUtilities.formatFileSize(file.length());
-                fname = fname.toLowerCase();
-                if (fname.endsWith(".jpg") || fname.endsWith(".png") || fname.endsWith(".gif") || fname.endsWith(".jpeg")) {
-                    item.thumb = file.getAbsolutePath();
+                if (file.isDirectory()) {
+                    item.icon = R.drawable.files_folder;
+                    item.subtitle = LocaleController.getString("Folder", R.string.Folder);
+                } else {
+                    String fname = file.getName();
+                    String[] sp = fname.split("\\.");
+                    item.ext = sp.length > 1 ? sp[sp.length - 1] : "?";
+                    item.subtitle = AndroidUtilities.formatFileSize(file.length());
+                    fname = fname.toLowerCase();
+                    if (fname.endsWith(".jpg") || fname.endsWith(".png") || fname.endsWith(".gif") || fname.endsWith(".jpeg")) {
+                        item.thumb = file.getAbsolutePath();
+                    }
                 }
                 listAdapter.recentItems.add(item);
             }
@@ -1331,7 +1351,7 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
             FileLog.e(e);
         }
 
-        if (!isSoundPicker) {
+        if (!isSoundPicker && !isEmojiPicker) {
             fs = new ListItem();
             fs.title = LocaleController.getString("Gallery", R.string.Gallery);
             fs.subtitle = LocaleController.getString("GalleryInfo", R.string.GalleryInfo);

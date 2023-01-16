@@ -1,14 +1,7 @@
 package com.eterocell.nekoegram.settings;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.CountDownTimer;
-import android.provider.OpenableColumns;
-import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
@@ -17,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuildConfig;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
@@ -28,19 +20,18 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.HeaderCell;
-import org.telegram.ui.Cells.NotificationsCheckCell;
 import org.telegram.ui.Cells.TextCheckCell;
+import org.telegram.ui.Cells.TextDetailSettingsCell;
+import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.AlertsCreator;
-import org.telegram.ui.Components.BulletinFactory;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 
 import com.eterocell.nekoegram.NekoConfig;
 import com.eterocell.nekoegram.helpers.PopupHelper;
+import com.eterocell.nekoegram.helpers.remote.AnalyticsHelper;
 
 public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
 
@@ -48,13 +39,18 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
     private boolean sensitiveEnabled;
 
     private int experimentRow;
-    private int emojiRow;
     private int downloadSpeedBoostRow;
     private int uploadSpeedBoostRow;
     private int mapDriftingFixRow;
     private int disableFilteringRow;
+    private int sendLargePhotosRow;
     private int showRPCErrorRow;
     private int experiment2Row;
+
+    private int dataRow;
+    private int sendBugReportRow;
+    private int deleteDataRow;
+    private int data2Row;
 
     private int deleteAccountRow;
     private int deleteAccount2Row;
@@ -169,17 +165,6 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
                 }.start();
             });
             showDialog(dialog);
-        } else if (position == emojiRow) {
-            if (!TextUtils.isEmpty(NekoConfig.customEmojiFontPath) && (LocaleController.isRTL && x <= AndroidUtilities.dp(76) || !LocaleController.isRTL && x >= view.getMeasuredWidth() - AndroidUtilities.dp(76))) {
-                NotificationsCheckCell checkCell = (NotificationsCheckCell) view;
-                NekoConfig.toggleCustomEmojiFont();
-                checkCell.setChecked(NekoConfig.customEmojiFont, 0);
-            } else {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                startActivityForResult(intent, 36654);
-            }
         } else if (position == mapDriftingFixRow) {
             NekoConfig.toggleMapDriftingFix();
             if (view instanceof TextCheckCell) {
@@ -208,6 +193,25 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
                 NekoConfig.setDownloadSpeedBoost(types.get(i));
                 listAdapter.notifyItemChanged(downloadSpeedBoostRow, PARTIAL);
             });
+        } else if (position == sendBugReportRow) {
+            if (AnalyticsHelper.analyticsDisabled) {
+                return;
+            }
+            AnalyticsHelper.toggleSendBugReport();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AnalyticsHelper.sendBugReport);
+            }
+        } else if (position == deleteDataRow) {
+            if (AnalyticsHelper.analyticsDisabled) {
+                return;
+            }
+            AnalyticsHelper.setAnalyticsDisabled();
+            listAdapter.notifyItemRangeChanged(sendBugReportRow, 2);
+        } else if (position == sendLargePhotosRow) {
+            NekoConfig.toggleSendLargePhotos();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.sendLargePhotos);
+            }
         }
     }
 
@@ -217,73 +221,13 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
     }
 
     @Override
-    protected boolean onItemLongClick(View view, int position, float x, float y) {
-        if (position == emojiRow) {
-            if (!TextUtils.isEmpty(NekoConfig.customEmojiFontPath)) {
-                try {
-                    if (NekoConfig.customEmojiFont) NekoConfig.toggleCustomEmojiFont();
-                    //noinspection ResultOfMethodCallIgnored
-                    new File(NekoConfig.customEmojiFontPath).delete();
-                    NekoConfig.setCustomEmojiFontPath(null);
-                } catch (Exception e) {
-                    //
-                }
-                listAdapter.notifyItemChanged(emojiRow);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     protected BaseListAdapter createAdapter(Context context) {
         return new ListAdapter(context);
     }
 
     @Override
     protected String getActionBarTitle() {
-        return LocaleController.getString("Experiment", R.string.Experiment);
-    }
-
-    @SuppressLint("Range")
-    public String getFileName(Uri uri) {
-        String result = null;
-        try (Cursor cursor = getParentActivity().getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public void onActivityResultFragment(int requestCode, int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }
-        if (requestCode == 36654) {
-            if (data != null) {
-                Uri uri = data.getData();
-                if (uri != null) {
-                    try {
-                        InputStream os = getParentActivity().getContentResolver().openInputStream(uri);
-                        String fileName = getFileName(uri);
-                        File dest = new File(ApplicationLoader.applicationContext.getExternalFilesDir(null), fileName == null ? "emoji.ttf" : fileName);
-                        AndroidUtilities.copyFile(os, dest);
-                        if (NekoConfig.setCustomEmojiFontPath(dest.toString())) {
-                            if (!NekoConfig.customEmojiFont) NekoConfig.toggleCustomEmojiFont();
-                        } else {
-                            BulletinFactory.of(this).createErrorBulletin(LocaleController.getString("InvalidCustomEmojiTypeface", R.string.InvalidCustomEmojiTypeface)).show();
-                            //noinspection ResultOfMethodCallIgnored
-                            dest.delete();
-                        }
-                    } catch (Exception e) {
-                        FileLog.e(e);
-                        AlertsCreator.showSimpleAlert(this, e.getLocalizedMessage());
-                    }
-                }
-            }
-        }
+        return LocaleController.getString("NotificationsOther", R.string.NotificationsOther);
     }
 
     @Override
@@ -291,13 +235,26 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
         super.updateRows();
 
         experimentRow = addRow("experiment");
-        emojiRow = addRow("emoji");
         downloadSpeedBoostRow = MessagesController.getInstance(currentAccount).getfileExperimentalParams ? -1 : addRow("downloadSpeedBoost");
         uploadSpeedBoostRow = addRow("uploadSpeedBoost");
         mapDriftingFixRow = addRow("mapDriftingFix");
         disableFilteringRow = sensitiveCanChange ? addRow("disableFiltering") : -1;
+        sendLargePhotosRow = addRow("sendLargePhotosRow");
         showRPCErrorRow = addRow("showRPCError");
         experiment2Row = addRow();
+
+        if (AnalyticsHelper.isSettingsAvailable()) {
+            dataRow = addRow();
+            sendBugReportRow = addRow();
+            deleteDataRow = addRow();
+            data2Row = addRow();
+        } else {
+            dataRow = -1;
+            sendBugReportRow = -1;
+            deleteDataRow = -1;
+            data2Row = -1;
+        }
+
         deleteAccountRow = addRow("deleteAccount");
         deleteAccount2Row = addRow();
     }
@@ -325,8 +282,6 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
                     if (position == deleteAccountRow) {
                         textCell.setText(LocaleController.getString("DeleteAccount", R.string.DeleteAccount), false);
                         textCell.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteRedText));
-                    } else if (position == emojiRow) {
-                        textCell.setText(LocaleController.getString("CustomEmojiTypeface", R.string.CustomEmojiTypeface), true);
                     } else if (position == downloadSpeedBoostRow) {
                         String value;
                         switch (NekoConfig.downloadSpeedBoost) {
@@ -357,6 +312,11 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
                         textCell.setTextAndValueAndCheck(LocaleController.getString("ShowRPCError", R.string.ShowRPCError), LocaleController.formatString("ShowRPCErrorException", R.string.ShowRPCErrorException, "FILE_REFERENCE_EXPIRED"), NekoConfig.showRPCError, true, false);
                     } else if (position == uploadSpeedBoostRow) {
                         textCell.setTextAndCheck(LocaleController.getString("UploadloadSpeedBoost", R.string.UploadloadSpeedBoost), NekoConfig.uploadSpeedBoost, true);
+                    } else if (position == sendBugReportRow) {
+                        textCell.setEnabled(!AnalyticsHelper.analyticsDisabled, null);
+                        textCell.setTextAndValueAndCheck(LocaleController.getString("SendBugReport", R.string.SendBugReport), LocaleController.getString("SendBugReportDesc", R.string.SendBugReportDesc), !AnalyticsHelper.analyticsDisabled && AnalyticsHelper.sendBugReport, true, true);
+                    } else if (position == sendLargePhotosRow) {
+                        textCell.setTextAndValueAndCheck(LocaleController.getString("SendLargePhotos", R.string.SendLargePhotos), LocaleController.getString("SendLargePhotosAbout", R.string.SendLargePhotosAbout), NekoConfig.sendLargePhotos, true, true);
                     }
                     break;
                 }
@@ -364,17 +324,38 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
                     HeaderCell headerCell = (HeaderCell) holder.itemView;
                     if (position == experimentRow) {
                         headerCell.setText(LocaleController.getString("Experiment", R.string.Experiment));
+                    } else if (position == dataRow) {
+                        headerCell.setText(LocaleController.getString("SendAnonymousData", R.string.SendAnonymousData));
                     }
                     break;
                 }
-                case TYPE_NOTIFICATION_CHECK: {
-                    NotificationsCheckCell textCell = (NotificationsCheckCell) holder.itemView;
-                    if (position == emojiRow) {
-                        textCell.setTextAndValueAndCheck(LocaleController.getString("CustomEmojiTypeface", R.string.CustomEmojiTypeface), new File(NekoConfig.customEmojiFontPath).getName(), NekoConfig.customEmojiFont, true);
+                case TYPE_DETAIL_SETTINGS: {
+                    TextDetailSettingsCell cell = (TextDetailSettingsCell) holder.itemView;
+                    cell.setEnabled(true);
+                    if (position == deleteDataRow) {
+                        cell.setEnabled(!AnalyticsHelper.analyticsDisabled);
+                        cell.setMultilineDetail(true);
+                        cell.setTextAndValue(LocaleController.getString("AnonymousDataDelete", R.string.AnonymousDataDelete), LocaleController.getString("AnonymousDataDeleteDesc", R.string.AnonymousDataDeleteDesc), false);
+                    }
+                    break;
+                }
+                case TYPE_INFO_PRIVACY: {
+                    TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
+                    if (position == data2Row) {
+                        cell.setText(LocaleController.getString("SendAnonymousDataDesc", R.string.SendAnonymousDataDesc));
                     }
                     break;
                 }
             }
+        }
+
+        @Override
+        public boolean isEnabled(RecyclerView.ViewHolder holder) {
+            int position = holder.getAdapterPosition();
+            if (position == sendBugReportRow || position == deleteDataRow) {
+                return !AnalyticsHelper.analyticsDisabled;
+            }
+            return super.isEnabled(holder);
         }
 
         @Override
@@ -383,12 +364,14 @@ public class NekoExperimentalSettingsActivity extends BaseNekoSettingsActivity {
                 return TYPE_SHADOW;
             } else if (position == deleteAccountRow || position == downloadSpeedBoostRow) {
                 return TYPE_SETTINGS;
-            } else if (position > downloadSpeedBoostRow && position <= showRPCErrorRow) {
+            } else if (position > downloadSpeedBoostRow && position <= showRPCErrorRow || position == sendBugReportRow) {
                 return TYPE_CHECK;
-            } else if (position == experimentRow) {
+            } else if (position == experimentRow || position == dataRow) {
                 return TYPE_HEADER;
-            } else if (position == emojiRow) {
-                return TextUtils.isEmpty(NekoConfig.customEmojiFontPath) ? TYPE_SETTINGS : TYPE_NOTIFICATION_CHECK;
+            } else if (position == deleteDataRow) {
+                return TYPE_DETAIL_SETTINGS;
+            } else if (position == data2Row) {
+                return TYPE_INFO_PRIVACY;
             }
             return TYPE_SETTINGS;
         }

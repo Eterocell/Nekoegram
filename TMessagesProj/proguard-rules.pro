@@ -100,6 +100,7 @@
 -keepclassmembernames class com.eterocell.nekoegram.DatacenterActivity$DatacenterHeaderCell { <fields>; }
 -keepclassmembernames class com.eterocell.nekoegram.MessageDetailsActivity$TextDetailSimpleCell { <fields>; }
 -keepclassmembernames class com.eterocell.nekoegram.settings.AccountCell { <fields>; }
+-keepclassmembernames class com.eterocell.nekoegram.settings.EmojiSetCell { <fields>; }
 -keepclassmembernames class com.eterocell.nekoegram.settings.NekoChatSettingsActivity$StickerSizeCell { <fields>; }
 
 -keepclassmembernames class androidx.core.widget.NestedScrollView {

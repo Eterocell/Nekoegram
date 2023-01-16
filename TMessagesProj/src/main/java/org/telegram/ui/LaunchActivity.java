@@ -198,6 +198,7 @@ import com.eterocell.nekoegram.helpers.ApkInstaller;
 import com.eterocell.nekoegram.helpers.MessageHelper;
 import com.eterocell.nekoegram.helpers.MonetHelper;
 import com.eterocell.nekoegram.helpers.SettingsHelper;
+import com.eterocell.nekoegram.helpers.remote.EmojiHelper;
 import com.eterocell.nekoegram.helpers.remote.UpdateHelper;
 import com.eterocell.nekoegram.settings.NekoDonateActivity;
 import com.eterocell.nekoegram.settings.NekoSettingsActivity;
@@ -891,6 +892,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                         }
                     });
         }
+        EmojiHelper.getInstance().checkEmojiPacks();
     }
 
     @Override
