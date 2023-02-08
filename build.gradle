@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
     id 'com.android.application' version '7.4.1' apply false
-    id 'com.google.gms.google-services' version '4.3.14' apply false
+    id 'com.google.gms.google-services' version '4.3.15' apply false
 }
 
 subprojects {
@@ -47,7 +47,7 @@ subprojects {
             }
 
             dependencies {
-                coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.0'
+                coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
             }
         }
     }
