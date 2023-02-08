@@ -96,6 +96,9 @@
 -keep,allowshrinking,allowobfuscation class org.telegram.ui.Components.GroupCreateSpan {
     public void updateColors();
  }
+-keep,allowshrinking,allowobfuscation class org.telegram.ui.Components.Premium.GLIcon.ObjLoader {
+    public <init>();
+ }
 -keepclassmembernames class com.eterocell.nekoegram.DatacenterActivity$DatacenterCell { <fields>; }
 -keepclassmembernames class com.eterocell.nekoegram.DatacenterActivity$DatacenterHeaderCell { <fields>; }
 -keepclassmembernames class com.eterocell.nekoegram.MessageDetailsActivity$TextDetailSimpleCell { <fields>; }
