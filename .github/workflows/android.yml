@@ -28,7 +28,7 @@ jobs:
           echo storeFile='key.jks' >> local.properties
           echo ${{ secrets.KEY_STORE }} | base64 --decode > TMessagesProj_App/key.jks
         fi
-        echo '${{ secrets.EXTRA }}' > TMessagesProj/src/main/java/tw/nekomimi/nekogram/Extra.java
+        echo '${{ secrets.EXTRA }}' > TMessagesProj/src/main/java/com/eterocell/nekoegram/Extra.java
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
