@@ -2,5 +2,10 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
+  ],
+  "ignoreDeps": [
+    "rules_cc",
+    "com_google_googletest",
+    "com_github_google_benchmark"
   ]
 }
