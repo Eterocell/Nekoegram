@@ -18,7 +18,7 @@ dependencies {
     implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
     implementation "androidx.sharetarget:sharetarget:1.2.0"
 
-    compileOnly 'org.checkerframework:checker-qual:3.30.0'
+    compileOnly 'org.checkerframework:checker-qual:3.31.0'
     compileOnly 'org.checkerframework:checker-compat-qual:2.5.5'
     implementation 'com.google.firebase:firebase-messaging:23.1.1'
     implementation 'com.google.firebase:firebase-appindexing:20.0.0'
