@@ -15,5 +15,3 @@ dependencyResolutionManagement {
 rootProject.name = "Nekoegram"
 include ':TMessagesProj'
 include ':TMessagesProj_App'
-
-include ':NekoegramSpecific'

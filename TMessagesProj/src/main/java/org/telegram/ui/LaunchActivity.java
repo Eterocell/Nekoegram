@@ -2947,7 +2947,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
                     @Override
                     public void notFoundThen() {
-                        showBulletin(factory -> factory.createErrorBulletin(LocaleController.getString("UP_Not_Found", com.eterocell.nekoegram.R.string.UP_Not_Found)));
+                        showBulletin(factory -> factory.createErrorBulletin(LocaleController.getString("UP_Not_Found", R.string.UP_Not_Found)));
                     }
                 });
             } else if (newContact) {

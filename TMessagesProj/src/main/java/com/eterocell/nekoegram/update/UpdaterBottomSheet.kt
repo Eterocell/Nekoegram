@@ -23,11 +23,11 @@ import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.core.content.ContextCompat
-import com.eterocell.nekoegram.R
 import com.eterocell.nekoegram.nekoegramVersion
 import com.eterocell.nekoegram.store.NekoeStore
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.LocaleController
+import org.telegram.messenger.R
 import org.telegram.ui.ActionBar.BottomSheet
 import org.telegram.ui.ActionBar.SimpleTextView
 import org.telegram.ui.ActionBar.Theme
@@ -94,7 +94,7 @@ class UpdaterBottomSheet(
             setGravity(Gravity.LEFT or Gravity.CENTER_VERTICAL)
             setText(
                 LocaleController.getString(
-                    "Nekoegram", org.telegram.messenger.R.string.Nekoegram
+                    "Nekoegram", R.string.Nekoegram
                 )
             )
         }
@@ -246,13 +246,13 @@ class UpdaterBottomSheet(
                 setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
                 text = LocaleController.getString(
                     "AppUpdateDownloadNow",
-                    org.telegram.messenger.R.string.AppUpdateDownloadNow
+                    R.string.AppUpdateDownloadNow
                 )
                 setOnClickListener {
                     UpdateUtils.downloadApk(
                         context,
                         updateInfo.downloadUrl,
-                        "${org.telegram.messenger.R.string.Nekoegram} ${updateInfo.version}"
+                        "${R.string.Nekoegram} ${updateInfo.version}"
                     )
                     dismiss()
                 }
@@ -434,7 +434,7 @@ class UpdaterBottomSheet(
         AndroidUtilities.addToClipboard(text)
         BulletinFactory.of(getContainer(), null).createCopyBulletin(
             LocaleController.getString(
-                "TextCopied", org.telegram.messenger.R.string.TextCopied
+                "TextCopied", R.string.TextCopied
             )
         ).show()
     }
