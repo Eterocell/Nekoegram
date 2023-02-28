@@ -60,7 +60,6 @@ jobs:
         echo 'android.native.buildOutput=verbose' >> gradle.properties
         echo 'buildCache { local { removeUnusedEntriesAfterDays = 1 } }' >> settings.gradle.kts
         ./gradlew :TMessagesProj_App:assembleRelease
-        ./gradlew :TMessagesProj_App:bundlePlay
     - name: Upload apk
       uses: actions/upload-artifact@v3
       with:
