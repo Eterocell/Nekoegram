@@ -5,7 +5,6 @@
     <string name="UP_Version">Version</string>
     <string name="UP_UpdateSize">Update size</string>
     <string name="UP_Changelog">Changelog:</string>
-    <string name="AppUpdateRemindMeLater">Remind me later</string>
     <string name="UP_Auto_OTA">Check on launch</string>
     <string name="UP_ClearUpdatesCache">Clear updates cache</string>
     <string name="UP_NothingToClear">Nothing to clear.</string>
