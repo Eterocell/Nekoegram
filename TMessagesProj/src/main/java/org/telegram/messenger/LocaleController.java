@@ -1060,14 +1060,14 @@ public class LocaleController {
     private String getStringInternal(String key, String fallback, int res) {
         if (key.equals("AppName")) {
             try {
-                return ApplicationLoader.applicationContext.getString(R.string.Nekogram);
+                return ApplicationLoader.applicationContext.getString(R.string.Nekoegram);
             } catch (Exception e) {
                 FileLog.e(e);
             }
         }
         if (key.equals("AppNameBeta")) {
             try {
-                return ApplicationLoader.applicationContext.getString(R.string.NekogramBeta);
+                return ApplicationLoader.applicationContext.getString(R.string.NekoegramBeta);
             } catch (Exception e) {
                 FileLog.e(e);
             }

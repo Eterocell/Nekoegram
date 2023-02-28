@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="UP_LastCheck">Last check</string>
+    <string name="UP_CurrentVersion">Current version</string>
+    <string name="UP_Version">Version</string>
+    <string name="UP_UpdateSize">Update size</string>
+    <string name="UP_Changelog">Changelog:</string>
+    <string name="AppUpdateRemindMeLater">Remind me later</string>
+    <string name="UP_Auto_OTA">Check on launch</string>
+    <string name="UP_ClearUpdatesCache">Clear updates cache</string>
+    <string name="UP_NothingToClear">Nothing to clear.</string>
+    <string name="UP_ClearedUpdatesCache">Cleared %1$s of cache.</string>
+    <string name="UP_CheckForUpdates">Check for updates</string>
+    <string name="UP_Not_Found">Nekoegram is update to date.</string>
+</resources>
