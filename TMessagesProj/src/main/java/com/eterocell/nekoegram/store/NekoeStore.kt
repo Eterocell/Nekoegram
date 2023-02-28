@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
@@ -22,7 +22,7 @@ object NekoeStore {
         val flow = context.nekoegramStore.data.map { preferences ->
             preferences[LAST_UPDATE_CHECK_TIME] ?: 0L
         }
-        return runBlocking { flow.lastOrNull() ?: 0L }
+        return runBlocking { flow.firstOrNull() ?: 0L }
     }
 
     fun setLastUpdateCheckTime(time: Long, context: Context) {
@@ -37,7 +37,7 @@ object NekoeStore {
         val flow = context.nekoegramStore.data.map { preferences ->
             preferences[UPDATE_SCHEDULE_TIMESTAMP] ?: 0L
         }
-        return runBlocking { flow.lastOrNull() ?: 0L }
+        return runBlocking { flow.firstOrNull() ?: 0L }
     }
 
     fun setUpdateScheduleTimestamp(timestamp: Long, context: Context) {
@@ -52,7 +52,7 @@ object NekoeStore {
         val flow = context.nekoegramStore.data.map { preferences ->
             preferences[AUTO_OTA] ?: false
         }
-        return runBlocking { flow.lastOrNull() ?: false }
+        return runBlocking { flow.firstOrNull() ?: false }
     }
 
     fun toggleAutoOTA(context: Context) {
