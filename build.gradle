@@ -35,6 +35,12 @@ subprojects {
                     coreLibraryDesugaringEnabled true
                 }
 
+                if (plugins.hasPlugin("org.jetbrains.kotlin.android")) {
+                    kotlinOptions {
+                        jvmTarget = "11"
+                    }
+                }
+
                 defaultConfig {
                     minSdkVersion 21
                     targetSdkVersion 33
