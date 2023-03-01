@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <string>
 
+#include <android/log.h>
+
+
 thread_local static char buf[PATH_MAX + 1];
 
 extern "C" JNIEXPORT jstring Java_org_telegram_messenger_Utilities_readlink(JNIEnv *env, jclass clazz, jstring path) {

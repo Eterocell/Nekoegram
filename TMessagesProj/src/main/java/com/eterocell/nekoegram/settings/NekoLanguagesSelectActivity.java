@@ -12,8 +12,10 @@ import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.BotWebViewVibrationEffect;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
+import org.telegram.messenger.TranslateController;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.Theme;
@@ -155,7 +157,8 @@ public class NekoLanguagesSelectActivity extends BaseNekoSettingsActivity {
             if (currentType == TYPE_RESTRICTED) {
                 TextCheckbox2Cell cell = (TextCheckbox2Cell) view;
                 if (localeInfo.langCode.equals(getCurrentTargetLanguage())) {
-                    AndroidUtilities.shakeView(((TextCheckbox2Cell) view).checkbox);
+                    AndroidUtilities.shakeViewSpring(view);
+                    BotWebViewVibrationEffect.APP_ERROR.vibrate();
                     return;
                 }
                 boolean remove = NekoConfig.restrictedLanguages.contains(localeInfo.langCode);
@@ -166,12 +169,32 @@ public class NekoLanguagesSelectActivity extends BaseNekoSettingsActivity {
                 }
                 NekoConfig.saveRestrictedLanguages();
                 cell.setChecked(!remove);
+                getMessagesController().getTranslateController().checkRestrictedLanguagesUpdate();
             } else {
                 NekoConfig.setTranslationTarget(localeInfo.langCode);
                 finishFragment();
             }
         }
     }
+
+    public static boolean toggleLanguage(String language, boolean doNotTranslate) {
+        if (language == null) {
+            return false;
+        }
+        var currentTargetLanguage = Translator.stripLanguageCode(Translator.getCurrentTranslator().getCurrentTargetLanguage());
+        if (language.equals(currentTargetLanguage) && doNotTranslate) {
+            return false;
+        }
+        if (!doNotTranslate) {
+            NekoConfig.restrictedLanguages.removeIf(s -> s != null && s.equals(language));
+        } else {
+            NekoConfig.restrictedLanguages.add(language);
+        }
+        NekoConfig.saveRestrictedLanguages();
+        TranslateController.invalidateSuggestedLanguageCodes();
+        return true;
+    }
+
 
     @Override
     protected BaseListAdapter createAdapter(Context context) {

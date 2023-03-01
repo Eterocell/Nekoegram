@@ -202,12 +202,13 @@ set_target_properties(sqlite PROPERTIES
 target_compile_definitions(sqlite PUBLIC
         NULL=0 SOCKLEN_T=socklen_t LOCALE_NOT_USED ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE HAVE_STRCHRNUL=0 ANDROID_ARMV6_IDCT)
 
+
 #voip
 include(${CMAKE_HOME_DIRECTORY}/voip/CMakeLists.txt)
 
 include(${CMAKE_HOME_DIRECTORY}/integrity/CMakeLists.txt)
 
-set(NATIVE_LIB "neko.42")
+set(NATIVE_LIB "neko.43")
 
 #tmessages
 add_library(${NATIVE_LIB} SHARED
@@ -455,7 +456,12 @@ target_sources(${NATIVE_LIB} PRIVATE
         third_party/libyuv/source/scale_win.cc
         third_party/libyuv/source/scale.cc
         third_party/libyuv/source/video_common.cc
-        third_party/libyuv/source/scale_uv.cc)
+        third_party/libyuv/source/scale_uv.cc
+        third_party/libyuv/source/rotate_lsx.cc
+        third_party/libyuv/source/row_lasx.cc
+        third_party/libyuv/source/row_lsx.cc
+        third_party/libyuv/source/scale_lsx.cc
+        third_party/libyuv/source/scale_rgb.cc)
 
 target_include_directories(${NATIVE_LIB} PUBLIC
         opus/include

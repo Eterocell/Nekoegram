@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.text.style.URLSpan;
 import android.view.View;
 
 import androidx.core.text.HtmlCompat;
@@ -14,10 +15,11 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
+import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
-import org.telegram.ui.Components.TranslateAlert;
+import org.telegram.ui.Components.TranslateAlert2;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -37,17 +39,16 @@ public class Translator {
     public static final String PROVIDER_BAIDU = "baidu";
     public static final String PROVIDER_SOGOU = "sogou";
     public static final String PROVIDER_TENCENT = "tencent";
-    public static final String PROVIDER_TELEGRAM = "telegram";
 
     public static void showTranslateDialog(Context context, String query, boolean noforwards) {
         showTranslateDialog(context, query, noforwards, null, null, null);
     }
 
-    public static void showTranslateDialog(Context context, String query, boolean noforwards, BaseFragment fragment, TranslateAlert.OnLinkPress onLinkPress, String sourceLanguage) {
+    public static void showTranslateDialog(Context context, String query, boolean noforwards, BaseFragment fragment, Utilities.CallbackReturn<URLSpan, Boolean> onLinkPress, String sourceLanguage) {
         if (NekoConfig.transType == NekoConfig.TRANS_TYPE_EXTERNAL) {
             Translator.startExternalTranslator(context, query);
         } else {
-            TranslateAlert.showAlert(context, fragment, UserConfig.selectedAccount, sourceLanguage, NekoConfig.translationTarget, query, noforwards, onLinkPress, null);
+            TranslateAlert2.showAlert(context, fragment, UserConfig.selectedAccount, sourceLanguage, NekoConfig.translationTarget, query, null, noforwards, onLinkPress, null);
         }
     }
 
@@ -128,8 +129,6 @@ public class Translator {
         types.add(Translator.PROVIDER_SOGOU);
         names.add(LocaleController.getString("ProviderTencentTranslator", R.string.ProviderTencentTranslator));
         types.add(Translator.PROVIDER_TENCENT);
-        names.add(LocaleController.getString("ProviderTelegram", R.string.ProviderTelegram));
-        types.add(Translator.PROVIDER_TELEGRAM);
         return new Pair<>(names, types);
     }
 
@@ -244,24 +243,26 @@ public class Translator {
                 return SogouTranslator.getInstance();
             case PROVIDER_TENCENT:
                 return TencentTranslator.getInstance();
-            case PROVIDER_TELEGRAM:
-                return TelegramTranslator.getInstance();
             case PROVIDER_GOOGLE:
             default:
                 return GoogleAppTranslator.getInstance();
         }
     }
 
-    public static void translate(Object query, String fl, TranslateCallBack translateCallBack) {
+    public static void translate(Object query, String fl, String tl, TranslateCallBack translateCallBack) {
         BaseTranslator translator = getCurrentTranslator();
 
-        String language = translator.getCurrentTargetLanguage();
+        String language = tl == null ? translator.getCurrentTargetLanguage() : tl;
 
         if (!translator.supportLanguage(language)) {
             translateCallBack.onError(new UnsupportedTargetLanguageException());
         } else {
             translator.startTask(query, fl, language, translateCallBack);
         }
+    }
+
+    public static void translate(Object query, String fl, TranslateCallBack translateCallBack) {
+        translate(query, fl, null, translateCallBack);
     }
 
     public static void startExternalTranslator(Context context, String text) {
