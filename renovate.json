@@ -6,6 +6,14 @@
   "ignoreDeps": [
     "rules_cc",
     "com_google_googletest",
-    "com_github_google_benchmark"
+    "com_github_google_benchmark",
+    "org.checkerframework:checker-qual"
+  ],
+  "packageRules": [
+    {
+      "managers": ["maven"],
+      "packageNames": ["com.google.guava:guava"],
+      "versionScheme": "docker"
+    }
   ]
 }
