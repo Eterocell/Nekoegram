@@ -38,7 +38,7 @@ dependencies {
     implementation 'com.google.mlkit:language-id:17.0.4'
     implementation 'com.android.billingclient:billing:5.1.0'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation ('com.google.guava:guava:31.0.1-android') {
+    implementation ('com.google.guava:guava:31.1-jre') {
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
         exclude group: 'org.checkerframework', module: 'checker-compat-qual'
         exclude group: 'org.checkerframework', module: 'checker-qual'
