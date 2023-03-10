@@ -50,9 +50,9 @@ object NekoeStore {
 
     fun getAutoOTA(context: Context): Boolean {
         val flow = context.nekoegramStore.data.map { preferences ->
-            preferences[AUTO_OTA] ?: false
+            preferences[AUTO_OTA] ?: true
         }
-        return runBlocking { flow.firstOrNull() ?: false }
+        return runBlocking { flow.firstOrNull() ?: true }
     }
 
     fun toggleAutoOTA(context: Context) {

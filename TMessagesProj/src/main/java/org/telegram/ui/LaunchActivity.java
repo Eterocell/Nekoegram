@@ -909,7 +909,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         }
 
         if (NekoeStore.INSTANCE.getAutoOTA(this)) {
-            UpdateUtils.INSTANCE.checkUpdates(this, false);
+            Utilities.externalNetworkQueue.postRunnable(() -> {
+                UpdateUtils.INSTANCE.checkUpdates(this, false);
+            });
         }
 
         EmojiHelper.getInstance().checkEmojiPacks();

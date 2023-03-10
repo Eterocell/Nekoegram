@@ -25,6 +25,7 @@ import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import com.eterocell.nekoegram.nekoegramVersion
 import com.eterocell.nekoegram.store.NekoeStore
+import com.google.android.exoplayer2.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -108,17 +109,9 @@ object UpdateUtils {
                     setRequestProperty("Content-Type", "application/json")
                 }
 
-                val textBuilder = StringBuilder()
-                val reader = BufferedReader(
-                    InputStreamReader(
-                        connection.inputStream, StandardCharsets.UTF_8
-                    )
-                )
-                reader.useLines {
-                    textBuilder.append(it)
-                }
+                val text = connection.inputStream.bufferedReader().use(BufferedReader::readText)
 
-                val obj = JSONObject(textBuilder.toString())
+                val obj = JSONObject(text)
                 val arr = obj.getJSONArray("assets")
 
                 if (arr.length() == 0) {
