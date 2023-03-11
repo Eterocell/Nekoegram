@@ -2895,6 +2895,10 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     }
                 } else if (id == 6536) {
                     getMessageHelper().generateUpdateInfo(ChatActivity.this, selectedMessagesIds, () -> {
+                        UndoView undoView = getUndoView();
+                        if (undoView == null) {
+                            return;
+                        }
                         undoView.showWithAction(0, UndoView.ACTION_TEXT_COPIED, null);
                         clearSelectionMode();
                     });
@@ -25144,7 +25148,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     emptyMessage = LocaleController.getString("NoScheduledMessages", R.string.NoScheduledMessages);
                 } else if (currentUser != null && currentUser.id != 777000 && currentUser.id != 429000 && currentUser.id != 4244000 && MessagesController.isSupportUser(currentUser)) {
                     emptyMessage = LocaleController.getString("GotAQuestion", R.string.GotAQuestion);
-                } else {
+                } else if (currentUser == null || currentUser.self || currentUser.deleted || userBlocked) {
+                    emptyMessage = LocaleController.getString("NoMessages", R.string.NoMessages);
+                } else if (NekoConfig.disableGreetingSticker) {
                     emptyMessage = LocaleController.getString("NoMessages", R.string.NoMessages);
                 }
                 if (emptyMessage == null) {
@@ -32445,9 +32451,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     }
 
     private void updateBotHelpCellClick(BotHelpCell cell) {
-        if (LanguageDetector.hasSupport()) {
-            final CharSequence text = cell.getText();
-            LanguageDetector.detectLanguage(text == null ? "" : text.toString(), lang -> {
+        final CharSequence text = cell.getText();
+        if (text != null && LanguageDetector.hasSupport()) {
+            LanguageDetector.detectLanguage(text.toString(), lang -> {
                 String fromLang = Translator.stripLanguageCode(lang);
                 if (lang != null && !Translator.isLanguageRestricted(fromLang)) {
                     cell.setOnClickListener(e -> {
