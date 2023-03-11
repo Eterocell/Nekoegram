@@ -1915,7 +1915,7 @@ public class LNavigation extends FrameLayout implements INavigationLayout, Float
     }
 
     @Override
-    public ViewGroup getOverlayContainerView() {
+    public FrameLayout getOverlayContainerView() {
         return overlayLayout;
     }
 
