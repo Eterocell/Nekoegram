@@ -189,6 +189,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.eterocell.nekoegram.NekoConfig;
+import com.eterocell.nekoegram.helpers.TypefaceHelper;
 
 public class AndroidUtilities {
     public final static int LIGHT_STATUS_BAR_OVERLAY = 0x0f000000, DARK_STATUS_BAR_OVERLAY = 0x33000000;
@@ -1682,13 +1683,21 @@ public class AndroidUtilities {
                     Typeface t;
                     switch (assetPath) {
                         case TYPEFACE_ROBOTO_MEDIUM:
-                            t = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+                            if (TypefaceHelper.isMediumWeightSupported()) {
+                                t = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+                            } else {
+                                t = Typeface.create("sans-serif", Typeface.BOLD);
+                            }
                             break;
                         case "fonts/ritalic.ttf":
                             t = Typeface.create("sans-serif", Typeface.ITALIC);
                             break;
                         case TYPEFACE_ROBOTO_MEDIUM_ITALIC:
-                            t = Typeface.create("sans-serif-medium", Typeface.ITALIC);
+                            if (TypefaceHelper.isMediumWeightSupported()) {
+                                t = Typeface.create("sans-serif-medium", Typeface.ITALIC);
+                            } else {
+                                t = Typeface.create("sans-serif", Typeface.BOLD_ITALIC);
+                            }
                             break;
                         case TYPEFACE_ROBOTO_MONO:
                             t = Typeface.MONOSPACE;
@@ -1899,6 +1908,7 @@ public class AndroidUtilities {
     }
 
     public static ArrayList<File> getRootDirs() {
+        HashSet<String> pathes = new HashSet<>();
         ArrayList<File> result = null;
         if (Build.VERSION.SDK_INT >= 19) {
             File[] dirs = ApplicationLoader.applicationContext.getExternalFilesDirs(null);
@@ -1919,7 +1929,10 @@ public class AndroidUtilities {
                                 continue;
                             }
                         }
-                        result.add(file);
+                        if (file != null && !pathes.contains(file.getAbsolutePath())) {
+                            pathes.add(file.getAbsolutePath());
+                            result.add(file);
+                        }
                     }
                 }
             }
@@ -1928,7 +1941,10 @@ public class AndroidUtilities {
             result = new ArrayList<>();
         }
         if (result.isEmpty()) {
-            result.add(Environment.getExternalStorageDirectory());
+            File dir = Environment.getExternalStorageDirectory();
+            if (dir != null && !pathes.contains(dir.getAbsolutePath())) {
+                result.add(dir);
+            }
         }
         return result;
     }
@@ -1940,7 +1956,9 @@ public class AndroidUtilities {
         } catch (Exception e) {
             FileLog.e(e);
         }
+
         if (state == null || state.startsWith(Environment.MEDIA_MOUNTED)) {
+            FileLog.d("external dir mounted");
             try {
                 File file;
                 if (Build.VERSION.SDK_INT >= 19) {
@@ -1957,16 +1975,20 @@ public class AndroidUtilities {
                 } else {
                     file = ApplicationLoader.applicationContext.getExternalCacheDir();
                 }
+                FileLog.d("check dir " + (file == null ? null : file.getPath()) + " ");
                 if (file != null && (file.exists() || file.mkdirs()) && file.canWrite()) {
-                    boolean canWrite = true;
-                    try {
-                        AndroidUtilities.createEmptyFile(new File(file, ".nomedia"));
-                    } catch (Exception e) {
-                        canWrite = false;
-                    }
-                    if (canWrite) {
-                        return file;
-                    }
+//                    boolean canWrite = true;
+//                    try {
+//                        AndroidUtilities.createEmptyFile(new File(file, ".nomedia"));
+//                    } catch (Exception e) {
+//                        canWrite = false;
+//                    }
+//                    if (canWrite) {
+//                        return file;
+//                    }
+                    return file;
+                } else if (file != null) {
+                    FileLog.d("check dir file exist " + file.exists() + " can write " + file.canWrite());
                 }
             } catch (Exception e) {
                 FileLog.e(e);

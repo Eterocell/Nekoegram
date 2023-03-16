@@ -7597,7 +7597,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 if (true || getUserConfig().isPremium()) {
                     getMessagesController().getTranslateController().toggleTranslatingDialog(getDialogId());
                 } else {
-                    MessagesController.getNotificationsSettings(currentAccount).edit().putInt("dialog_show_translate_count" + getDialogId(), 10).commit();
+                    MessagesController.getNotificationsSettings(currentAccount).edit().putInt("dialog_show_translate_count" + getDialogId(), 14).commit();
                     showDialog(new PremiumFeatureBottomSheet(ChatActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_TRANSLATIONS, false));
                 }
                 updateTopPanel(true);
@@ -7974,17 +7974,21 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         ActionBarMenuItem item = editTextItem.createView();
         item.addSubItem(text_spoiler, LocaleController.getString("Spoiler", R.string.Spoiler));
         SpannableStringBuilder stringBuilder = new SpannableStringBuilder(LocaleController.getString("Bold", R.string.Bold));
-        stringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.getTypeface("fonts/rmedium.ttf")), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
+        run.flags |= TextStyleSpan.FLAG_STYLE_BOLD;
+        stringBuilder.setSpan(new TextStyleSpan(run), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         item.addSubItem(text_bold, stringBuilder);
         stringBuilder = new SpannableStringBuilder(LocaleController.getString("Italic", R.string.Italic));
-        stringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.getTypeface("fonts/ritalic.ttf")), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        run = new TextStyleSpan.TextStyleRun();
+        run.flags |= TextStyleSpan.FLAG_STYLE_ITALIC;
+        stringBuilder.setSpan(new TextStyleSpan(run), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         item.addSubItem(text_italic, stringBuilder);
         stringBuilder = new SpannableStringBuilder(LocaleController.getString("Mono", R.string.Mono));
         stringBuilder.setSpan(new TypefaceSpan(Typeface.MONOSPACE), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         item.addSubItem(text_mono, stringBuilder);
         if (currentEncryptedChat == null || AndroidUtilities.getPeerLayerVersion(currentEncryptedChat.layer) >= 101) {
             stringBuilder = new SpannableStringBuilder(LocaleController.getString("Strike", R.string.Strike));
-            TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
+            run = new TextStyleSpan.TextStyleRun();
             run.flags |= TextStyleSpan.FLAG_STYLE_STRIKE;
             stringBuilder.setSpan(new TextStyleSpan(run), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             item.addSubItem(text_strike, stringBuilder);
@@ -8858,7 +8862,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         if (progressView == null) {
             return;
         }
-        if (DISABLE_PROGRESS_VIEW && !AndroidUtilities.isTablet() && !isComments && currentUser == null && LiteMode.isEnabled(LiteMode.FLAG_CHAT_BACKGROUND)) {
+        if (DISABLE_PROGRESS_VIEW && !AndroidUtilities.isTablet() && !isComments && currentUser == null && LiteMode.isEnabled(LiteMode.FLAGS_CHAT)) {
             animateProgressViewTo = show;
             return;
         }
@@ -10091,7 +10095,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
         if (userInfo != null && userInfo.voice_messages_forbidden) {
             mediaBanTooltip.setText(AndroidUtilities.replaceTags(LocaleController.formatString(chatActivityEnterView.isInVideoMode() ? R.string.VideoMessagesRestrictedByPrivacy : R.string.VoiceMessagesRestrictedByPrivacy, currentUser.first_name)));
-        } else if (!ChatObject.canSendVoice(currentChat) && !ChatObject.canSendVoice(currentChat)) {
+        } else if (!ChatObject.canSendVoice(currentChat) && !ChatObject.canSendRoundVideo(currentChat)) {
             if (chatActivityEnterView.isInVideoMode()) {
                 mediaBanTooltip.setText(ChatObject.getRestrictedErrorText(currentChat, ChatObject.ACTION_SEND_ROUND));
             } else {
@@ -17287,6 +17291,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 builder.setTopAnimationIsNew(true);
                 if (reason == 0) {
                     if (currentChat instanceof TLRPC.TL_channelForbidden) {
+                        builder.setTitle(LocaleController.getString("ChannelCantOpenBannedByAdminTitle", R.string.ChannelCantOpenBannedByAdminTitle));
                         builder.setMessage(LocaleController.getString("ChannelCantOpenBannedByAdmin", R.string.ChannelCantOpenBannedByAdmin));
                     } else {
                         builder.setTitle(LocaleController.getString(R.string.ChannelPrivate));
@@ -20750,17 +20755,21 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         menu.add(R.id.menu_groupbolditalic, R.id.menu_spoiler, order++, LocaleController.getString("Spoiler", R.string.Spoiler));
 
         SpannableStringBuilder stringBuilder = new SpannableStringBuilder(LocaleController.getString("Bold", R.string.Bold));
-        stringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.getTypeface("fonts/rmedium.ttf")), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
+        run.flags |= TextStyleSpan.FLAG_STYLE_BOLD;
+        stringBuilder.setSpan(new TextStyleSpan(run), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         menu.add(R.id.menu_groupbolditalic, R.id.menu_bold, order++, stringBuilder);
         stringBuilder = new SpannableStringBuilder(LocaleController.getString("Italic", R.string.Italic));
-        stringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.getTypeface("fonts/ritalic.ttf")), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        run = new TextStyleSpan.TextStyleRun();
+        run.flags |= TextStyleSpan.FLAG_STYLE_ITALIC;
+        stringBuilder.setSpan(new TextStyleSpan(run), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         menu.add(R.id.menu_groupbolditalic, R.id.menu_italic, order++, stringBuilder);
         stringBuilder = new SpannableStringBuilder(LocaleController.getString("Mono", R.string.Mono));
         stringBuilder.setSpan(new TypefaceSpan(Typeface.MONOSPACE), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         menu.add(R.id.menu_groupbolditalic, R.id.menu_mono, order++, stringBuilder);
         if (currentEncryptedChat == null || AndroidUtilities.getPeerLayerVersion(currentEncryptedChat.layer) >= 101) {
             stringBuilder = new SpannableStringBuilder(LocaleController.getString("Strike", R.string.Strike));
-            TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
+            run = new TextStyleSpan.TextStyleRun();
             run.flags |= TextStyleSpan.FLAG_STYLE_STRIKE;
             stringBuilder.setSpan(new TextStyleSpan(run), 0, stringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             menu.add(R.id.menu_groupbolditalic, R.id.menu_strike, order++, stringBuilder);
@@ -22127,7 +22136,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         boolean showTranslate = (
             true ?
                 getMessagesController().getTranslateController().isDialogTranslatable(getDialogId()) && !getMessagesController().getTranslateController().isTranslateDialogHidden(getDialogId()) :
-                !getMessagesController().premiumLocked && preferences.getInt("dialog_show_translate_count" + did, 3) <= 0
+                !getMessagesController().premiumLocked && preferences.getInt("dialog_show_translate_count" + did, 5) <= 0
         );
         if (showRestartTopic) {
             shownRestartTopic = true;
@@ -24581,6 +24590,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     drawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon), PorterDuff.Mode.SRC_IN));
                     drawable = new CrossfadeDrawable(drawable, new CircularProgressDrawable(AndroidUtilities.dp(12f), AndroidUtilities.dp(1.5f), getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon)));
                     rateUp.setImageDrawable(drawable);
+                    rateUp.setContentDescription(LocaleController.getString(R.string.AccDescrRateTranscriptionUp));
                     rateTranscription.addView(rateUp, LayoutHelper.createFrame(33, 33, Gravity.CENTER_HORIZONTAL | Gravity.TOP, -42, 39, 0, 0));
 
                     ImageView rateDown = new ImageView(contentView.getContext());
@@ -24589,6 +24599,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     drawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon), PorterDuff.Mode.SRC_IN));
                     drawable = new CrossfadeDrawable(drawable, new CircularProgressDrawable(AndroidUtilities.dp(12f), AndroidUtilities.dp(1.5f), getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon)));
                     rateDown.setImageDrawable(drawable);
+                    rateDown.setContentDescription(LocaleController.getString(R.string.AccDescrRateTranscriptionDown));
                     rateTranscription.addView(rateDown, LayoutHelper.createFrame(33, 33, Gravity.CENTER_HORIZONTAL | Gravity.TOP, 42, 39, 0, 0));
 
                     Runnable rate = () -> {

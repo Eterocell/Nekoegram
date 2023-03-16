@@ -1668,7 +1668,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             raisedToTop = 0;
             raisedToTopSign = 0;
             countLess = 0;
-        } else if (proximityTouched && ((accelerometerSensor == null || linearSensor == null) && gravitySensor == null) && !VoIPService.isAnyKindOfCallActive()) {
+        } else if (proximityTouched && ((accelerometerSensor == null || linearSensor == null) && gravitySensor == null || ignoreAccelerometerGestures()) && !VoIPService.isAnyKindOfCallActive()) {
             if (playingMessageObject != null && !ApplicationLoader.mainInterfacePaused && (playingMessageObject.isVoice() || playingMessageObject.isRoundVideo())) {
                 if (!useFrontSpeaker && !NotificationsController.audioManager.isWiredHeadsetOn() && !NotificationsController.audioManager.isBluetoothA2dpOn()) {
                     if (BuildVars.LOGS_ENABLED) {
@@ -3328,7 +3328,9 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             startRaiseToEarSensors(raiseChat);
         }
         if (!ApplicationLoader.mainInterfacePaused && proximityWakeLock != null && !proximityWakeLock.isHeld() && (playingMessageObject.isVoice() || playingMessageObject.isRoundVideo())) {
-//            proximityWakeLock.acquire();
+            if (ignoreAccelerometerGestures()) {
+                proximityWakeLock.acquire();
+            }
         }
         startProgressTimer(playingMessageObject);
         NotificationCenter.getInstance(messageObject.currentAccount).postNotificationName(NotificationCenter.messagePlayingDidStart, messageObject, oldMessageObject);
@@ -3388,6 +3390,10 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         }
 
         return true;
+    }
+
+    private boolean ignoreAccelerometerGestures() {
+        return Build.MANUFACTURER.equalsIgnoreCase("samsung");
     }
     
     public void updateSilent(boolean value) {
