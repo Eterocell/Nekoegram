@@ -3,12 +3,12 @@ package org.tcp2ws;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import com.eterocell.nekoegram.helpers.remote.ConfigHelper;
+import com.eterocell.nekoegram.NekoConfig;
 
 public class Tcp2WsServer extends tcp2wsServer {
 
     static {
-        var wsDomain = ConfigHelper.getWsDomain();
+        var wsDomain = NekoConfig.getWsDomain();
 
         mtpcdn.clear();
         mtpcdn.put(1, "pluto." + wsDomain);
