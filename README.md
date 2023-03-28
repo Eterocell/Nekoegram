@@ -1,3 +1,7 @@
+# This project is archived since the original Nekogram already fullfill all my need. If you are using any Nekoegram builds, consider migrate to the official [Nekogram](https://nekogram.app/) client.
+
+---
+
 # Nekoegram
 Nekoegram is a third-party Telegram client with not many but useful modifications, based on [Nekogram](https://gitlab.com/Nekogram/Nekogram).
 
@@ -7,7 +11,7 @@ Nekoegram is a third-party Telegram client with not many but useful modification
 
 ## New features compare to original Nekogram
 
-- "Mark as read" cell for all tabs
+- ~"Mark as read" cell for all tabs~ (Telegram already implemented this since 9.5.5)
 
 ## API, Protocol documentation
 
